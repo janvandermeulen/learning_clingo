@@ -5,6 +5,7 @@
 %%             /\
 %%            b  c
 
+comp_root(0).
 comp_node(0).
 comp_node(1).
 comp_node(2).
@@ -32,16 +33,10 @@ child_of(7, 4, 1).
 child_of(8, 5, 0).
 child_of(9, 5, 1).
 
-%% assign the root node 0 of the compression to compression #1
-is_root_of_compression(0, 1).
-
 %% ------------ CONSTRAINTS PART --------------------------------
 
 %% assigns compressions to models
-{ compress(X, 1..1) } 1 :- node(X).
-
-%% assigns node X to comp_node K, which is the root of compression C,
-assign(R, X) :- is_root_of_compression(R, C), compress(X, C).
+{ assign(A, X) : comp_root(A) } 1 :- node(X).
 
 %% it may not be that K has child with index I, and X does not have a child with index I
 :- assign(K, X), child_of(M, K, I), #count {Y: child_of(Y, X, I)} = 0.

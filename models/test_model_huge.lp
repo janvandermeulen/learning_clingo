@@ -6,6 +6,7 @@
 %%            1    2
 %% notive that the middle child (index 1) is not included in this compression
 
+comp_root(0).
 comp_node(0).
 comp_node(1).
 comp_node(2).
@@ -17,6 +18,7 @@ child_of(2, 0, 2).
 %%             /\
 %%            4  5
 
+comp_root(3).
 comp_node(3).
 comp_node(4).
 comp_node(5).
@@ -30,6 +32,7 @@ child_of(5, 3, 1).
 %%           / \ 
 %%          8   9
 
+comp_root(6).
 comp_node(6).
 comp_node(7).
 comp_node(8).
@@ -76,18 +79,10 @@ child_of(l, h, 0).
 child_of(m, h, 1).
 child_of(n, k, 0).
 
-%% assign the root node 0 of the compression to compression #1
-is_root_of_compression(0, 1).
-is_root_of_compression(3, 2).
-is_root_of_compression(6, 3).
-
 %% ------------ CONSTRAINTS PART --------------------------------
 
 %% assigns compressions to models
-{ compress(X, 1..2) } 1 :- node(X).
-
-%% assigns node X to comp_node K, which is the root of compression C,
-assign(R, X) :- is_root_of_compression(R, C), compress(X, C).
+{ assign(A, X) : comp_root(A) } 1 :- node(X).
 
 %% it may not be that K has child with index I, and X does not have a child with index I
 :- assign(K, X), child_of(M, K, I), #count {Y: child_of(Y, X, I)} = 0.
