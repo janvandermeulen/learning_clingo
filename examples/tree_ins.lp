@@ -2,9 +2,9 @@
 node(n1). % Root node
 node(n2).
 node(n3).
+leaf(2).
 leaf(3).
 leaf(4).
-leaf(2).
 leaf(5).
 
 % Operators at nodes
