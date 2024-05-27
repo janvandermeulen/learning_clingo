@@ -1,39 +1,6 @@
 %% -------- INPUT PART ------------------------------
 
-%% a compression of the following shape:
-%%              a
-%%             /\
-%%            b  c
-
-comp_root(0).
-comp_node(0).
-comp_node(1).
-comp_node(2).
-edge(1, 0, 0).
-edge(2, 0, 2).
-
-%% AST nodes of the following shape:
-%%              d
-%%             /  \
-%%            e    f
-%%           / \  / | \
-%%          g  h  i j  k
-
-node(3).
-node(4).
-node(5).
-node(6).
-node(7).
-node(8).
-node(9).
-node(10).
-edge(4, 3, 0).
-edge(5, 3, 1).
-edge(6, 4, 0).
-edge(7, 4, 1).
-edge(8, 5, 0).
-edge(9, 5, 1).
-edge(10, 5, 2).
+%% empty to pass input
 
 %% ------------ CONSTRAINTS PART --------------------------------
 

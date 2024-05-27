@@ -40,9 +40,9 @@ function parse(input)
         elseif isdigit(char)
             number, i = parse_number(i, input)
             index += 1 # Nr of node / edge
-            nodes = nodes * "\nNode($index, $number)"
+            nodes = nodes * "\nnode($index, $number)"
             child_nr = pop!(child_stack)
-            edges = edges * "\nEdge($parent, $index, $child_nr)"
+            edges = edges * "\nedge($parent, $index, $child_nr)"
             push!(child_stack, child_nr + 1)
         end
         i += 1

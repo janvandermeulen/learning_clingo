@@ -9,8 +9,8 @@ comp_root(0).
 comp_node(0).
 comp_node(1).
 comp_node(2).
-child_of(1, 0, 0).
-child_of(2, 0, 1).
+edge(1, 0, 0).
+edge(2, 0, 1).
 
 %% AST nodes of the following shape:
 %%              d
@@ -26,12 +26,12 @@ node(6).
 node(7).
 node(8).
 node(9).
-child_of(4, 3, 0).
-child_of(5, 3, 1).
-child_of(6, 4, 0).
-child_of(7, 4, 1).
-child_of(8, 5, 0).
-child_of(9, 5, 1).
+edge(4, 3, 0).
+edge(5, 3, 1).
+edge(6, 4, 0).
+edge(7, 4, 1).
+edge(8, 5, 0).
+edge(9, 5, 1).
 
 %% ------------ CONSTRAINTS PART --------------------------------
 
@@ -39,10 +39,10 @@ child_of(9, 5, 1).
 { assign(A, X) : comp_root(A) } 1 :- node(X).
 
 %% it may not be that K has child with index I, and X does not have a child with index I
-:- assign(K, X), child_of(M, K, I), #count {Y: child_of(Y, X, I)} = 0.
+:- assign(K, X), edge(M, K, I), #count {Y: edge(Y, X, I)} = 0.
 
 %% assign child I of X if there is child I of K to assign
-assign(M, Y) :- assign(K, X), child_of(Y, X, I), child_of(M, K, I).
+assign(M, Y) :- assign(K, X), edge(Y, X, I), edge(M, K, I).
 
 %% Each node X may have at most one assignment
 :- node(X), #count {K: assign(K, X)} > 1.

@@ -10,8 +10,8 @@ comp_root(0).
 comp_node(0).
 comp_node(1).
 comp_node(2).
-child_of(1, 0, 0).
-child_of(2, 0, 2).
+edge(1, 0, 0).
+edge(2, 0, 2).
 
 %% a compression of the following shape:
 %%              3
@@ -22,8 +22,8 @@ comp_root(3).
 comp_node(3).
 comp_node(4).
 comp_node(5).
-child_of(4, 3, 0).
-child_of(5, 3, 1).
+edge(4, 3, 0).
+edge(5, 3, 1).
 
 %% a compression of the following shape:
 %%              6
@@ -37,9 +37,9 @@ comp_node(6).
 comp_node(7).
 comp_node(8).
 comp_node(9).
-child_of(7, 6, 0).
-child_of(8, 7, 0).
-child_of(9, 7, 1).
+edge(7, 6, 0).
+edge(8, 7, 0).
+edge(9, 7, 1).
 
 %% AST nodes of the following shape:
 %%                 a
@@ -65,19 +65,19 @@ node(k).
 node(l).
 node(m).
 node(n).
-child_of(b, a, 0).
-child_of(c, a, 1).
-child_of(d, a, 2).
-child_of(e, b, 0).
-child_of(f, b, 1).
-child_of(g, c, 0).
-child_of(h, c, 1).
-child_of(i, c, 2).
-child_of(j, e, 0).
-child_of(k, e, 1).
-child_of(l, h, 0).
-child_of(m, h, 1).
-child_of(n, k, 0).
+edge(b, a, 0).
+edge(c, a, 1).
+edge(d, a, 2).
+edge(e, b, 0).
+edge(f, b, 1).
+edge(g, c, 0).
+edge(h, c, 1).
+edge(i, c, 2).
+edge(j, e, 0).
+edge(k, e, 1).
+edge(l, h, 0).
+edge(m, h, 1).
+edge(n, k, 0).
 
 %% ------------ CONSTRAINTS PART --------------------------------
 
@@ -85,10 +85,10 @@ child_of(n, k, 0).
 { assign(A, X) : comp_root(A) } 1 :- node(X).
 
 %% it may not be that K has child with index I, and X does not have a child with index I
-:- assign(K, X), child_of(M, K, I), #count {Y: child_of(Y, X, I)} = 0.
+:- assign(K, X), edge(M, K, I), #count {Y: edge(Y, X, I)} = 0.
 
 %% assign child I of X if there is child I of K to assign
-assign(M, Y) :- assign(K, X), child_of(Y, X, I), child_of(M, K, I).
+assign(M, Y) :- assign(K, X), edge(Y, X, I), edge(M, K, I).
 
 %% Each node X may have at most one assignment
 :- node(X), #count {K: assign(K, X)} > 1.
