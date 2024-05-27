@@ -93,6 +93,9 @@ assign(M, Y) :- assign(K, X), child_of(Y, X, I), child_of(M, K, I).
 %% Each node X may have at most one assignment
 :- node(X), #count {K: assign(K, X)} > 1.
 
+%% Each node X may only be assigned to compressionnode K if they have the same type
+:- assign(A, X), type(X, I), type(A, J), I!=J.
+
 #show assign/2.
 
 %% ------------------------- optimizing part ---------------------------------

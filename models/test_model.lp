@@ -9,6 +9,7 @@ comp_root(0).
 comp_node(0).
 comp_node(1).
 comp_node(2).
+type(0, 1).
 child_of(1, 0, 0).
 child_of(2, 0, 1).
 
@@ -20,6 +21,7 @@ child_of(2, 0, 1).
 node(3).
 node(4).
 node(5).
+type(3, 1).
 child_of(4, 3, 0).
 child_of(5, 3, 1).
 
@@ -36,6 +38,9 @@ assign(M, Y) :- assign(K, X), child_of(Y, X, I), child_of(M, K, I).
 
 %% Each node X may have at most one assignment
 :- node(X), #count {K: assign(K, X)} > 1.
+
+%% Each node X may only be assigned to compressionnode K if they have the same type
+:- assign(A, X), type(X, I), type(A, J), I!=J.
 
 #show assign/2.
 
