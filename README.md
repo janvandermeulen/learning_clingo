@@ -14,3 +14,5 @@ This command will generate the input.lp file that can be used to run the clingo 
 To run some examples you can run it using the clingo command. 
 ```clingo <encoding> <instance>```
 ```clingo examples/toh_enc.lp examples/toh_ins.lp```
+
+To let clingo give a JSON output you can use the flag ```--outf=2```.
