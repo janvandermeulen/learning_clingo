@@ -6,11 +6,11 @@
 %%            b  c
 
 comp_root(0).
-comp_node(0).
-comp_node(1).
-comp_node(2).
-child_of(1, 0, 0).
-child_of(2, 0, 2).
+comp_node(0, 0).
+comp_node(1, 0).
+comp_node(2, 0).
+edge(0, 1, 0).
+edge(0, 2, 2).
 
 %% a compression of the following shape:
 %%              x
@@ -20,13 +20,13 @@ child_of(2, 0, 2).
 %%          w   z
 
 comp_root(11).
-comp_node(11).
-comp_node(12).
-comp_node(13).
-comp_node(14).
-child_of(12, 11, 0).
-child_of(13, 12, 0).
-child_of(14, 12, 1).
+comp_node(11, 0).
+comp_node(12, 0).
+comp_node(13, 0).
+comp_node(14, 0).
+edge(11, 12, 0).
+edge(12, 13, 0).
+edge(12, 14, 1).
 
 %% AST nodes of the following shape:
 %%              d
@@ -35,35 +35,38 @@ child_of(14, 12, 1).
 %%           / \  / | \
 %%          g  h  i j  k
 
-node(3).
-node(4).
-node(5).
-node(6).
-node(7).
-node(8).
-node(9).
-node(10).
-child_of(4, 3, 0).
-child_of(5, 3, 1).
-child_of(6, 4, 0).
-child_of(7, 4, 1).
-child_of(8, 5, 0).
-child_of(9, 5, 1).
-child_of(10, 5, 2).
+node(3, 0).
+node(4, 0).
+node(5, 0).
+node(6, 0).
+node(7, 0).
+node(8, 0).
+node(9, 0).
+node(10, 0).
+edge(3, 4, 0).
+edge(3, 5, 1).
+edge(4, 6, 0).
+edge(4, 7, 1).
+edge(5, 8, 0).
+edge(5, 9, 1).
+edge(5, 10, 2).
 
 %% ------------ CONSTRAINTS PART --------------------------------
 
 %% assigns compressions to models
-{ assign(A, X) : comp_root(A) } 1 :- node(X).
+{ assign(A, X) : comp_root(A) } 1 :- node(X, _).
 
 %% it may not be that K has child with index I, and X does not have a child with index I
-:- assign(K, X), child_of(M, K, I), #count {Y: child_of(Y, X, I)} = 0.
+:- assign(K, X), edge(K, M, I), #count {Y: edge(X, Y, I)} = 0.
 
 %% assign child I of X if there is child I of K to assign
-assign(M, Y) :- assign(K, X), child_of(Y, X, I), child_of(M, K, I).
+assign(M, Y) :- assign(K, X), edge(X, Y, I), edge(K, M, I).
 
 %% Each node X may have at most one assignment
-:- node(X), #count {K: assign(K, X)} > 1.
+:- node(X, _), #count {K: assign(K, X)} > 1.
+
+%% Each node X may only be assigned to compressionnode K if they have the same type
+:- assign(A, X), node(X, I), node(A, J), I!=J.
 
 #show assign/2.
 
