@@ -54,6 +54,6 @@ end
 parse(ARGS[1])
 """
 Schema:
-Node(index, grammar_rule) e.g. Node(1, 1)
-Edge(parent, child, child_nr) e.g. Edge(1, 2, 5)
+node(index, grammar_rule) e.g. Node(1, 1)
+edge(parent, child, child_nr) e.g. Edge(1, 2, 5)
 """
