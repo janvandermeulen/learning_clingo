@@ -1,10 +1,12 @@
+%% -------- INPUT PART ------------------------------
+
 %% a compression of the following shape:
 %%              a
 %%             /\
 %%            b  c
 
 comp_root(0).
-comp_node(0, 1).
+comp_node(0, 0).
 comp_node(1, 0).
 comp_node(2, 0).
 edge(0, 1, 0).
@@ -18,7 +20,7 @@ edge(0, 2, 1).
 %%          g  h  i   j
 
 node(3, 0).
-node(4, 1).
+node(4, 0).
 node(5, 0).
 node(6, 0).
 node(7, 0).

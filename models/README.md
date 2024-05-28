@@ -1,5 +1,5 @@
 # Running Model
-Put the command ```clingo <path_to_model>``` in the terminal, for example ```clingo models/test_model.lp```. If you want to run a model with an input file instead of hardcoded input, use ```clingo <path_to_input_file> model.lp``` in the terminal
+Put the command ```clingo <path_to_input_file> model.lp 0``` in the terminal
 
 
 # Input Template

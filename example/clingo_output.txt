@@ -1,5 +1,5 @@
 {
-  "Solver": "clingo version 5.7.1",
+  "Solver": "clingo version 5.7.0",
   "Input": [
     "../models/model.lp","clingo_input.lp"
   ],
@@ -16,18 +16,10 @@
         },
         {
           "Value": [
-            "assign(11,1)", "assign(10,0)", "assign(12,2)"
+            "assign(1,6)", "assign(0,4)", "assign(2,7)"
           ],
           "Costs": [
             -3
-          ]
-        },
-        {
-          "Value": [
-            "assign(8,4)", "assign(7,3)", "assign(9,5)", "assign(11,1)", "assign(10,0)", "assign(12,2)"
-          ],
-          "Costs": [
-            -6
           ]
         }
       ]
@@ -35,20 +27,20 @@
   ],
   "Result": "OPTIMUM FOUND",
   "Models": {
-    "Number": 3,
+    "Number": 2,
     "More": "no",
     "Optimum": "yes",
     "Optimal": 1,
     "Costs": [
-      -6
+      -3
     ]
   },
   "Calls": 1,
   "Time": {
-    "Total": 0.001,
+    "Total": 0.003,
     "Solve": 0.000,
     "Model": 0.000,
     "Unsat": 0.000,
-    "CPU": 0.001
+    "CPU": 0.003
   }
 }

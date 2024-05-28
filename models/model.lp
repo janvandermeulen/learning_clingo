@@ -13,7 +13,7 @@ assign(M, Y) :- assign(K, X), edge(X, Y, I), edge(K, M, I).
 :- node(X, _), #count {K: assign(K, X)} > 1.
 
 %% Each node X may only be assigned to compressionnode K if they have the same type
-:- assign(A, X), node(X, I), node(A, J), I!=J.
+:- assign(A, X), node(X, I), comp_node(A, J), I!=J.
 
 #show assign/2.
 
