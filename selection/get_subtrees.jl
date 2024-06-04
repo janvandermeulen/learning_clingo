@@ -50,3 +50,6 @@ function combinations(n::Int)
         [vcat(false, perm) for perm in smaller_combinations])
 end
 
+function selection_criteria(tree::RuleNode, subtree::AbstractRuleNode)
+    return length(subtree) > 1
+end

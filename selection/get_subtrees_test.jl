@@ -19,6 +19,6 @@ subtrees = vcat(subtrees_root, other_subtrees)
 
 println("subtrees: ", [rulenode2expr(subtree, g) for subtree in subtrees])
 
-subtrees_filtered = [subtree for subtree in subtrees if length(subtree) > 1]
+subtrees_filtered = [subtree for subtree in subtrees if selection_criteria(random_tree, subtree) > 1]
 
 println("filtered: ", [rulenode2expr(subtree, g) for subtree in subtrees_filtered])
