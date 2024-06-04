@@ -44,6 +44,7 @@ function parse(input, start_index=0)
             pop!(child_stack)
         elseif char == '_'
             child_nr = pop!(child_stack)
+            index += 1
             push!(child_stack, child_nr + 1)
         elseif isdigit(char)
             number, i = parse_number(i, input)
