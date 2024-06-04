@@ -1,5 +1,5 @@
 # add all imports
-using HerbSearch, HerbCore, HerbSpecification, HerbInterpret, HerbGrammar
+using HerbSearch, HerbCore, HerbSpecification, HerbInterpret, HerbGrammar, JSON
 
 # include("sampling_grammar.jl")
 include("get_subtrees.jl")
@@ -13,6 +13,7 @@ g = @csgrammar begin
 end
 
 random_tree = rand(RuleNode, g, 4)
+println(random_tree)
 println(rulenode2expr(random_tree, g))
 (subtrees_root, other_subtrees) = select_subtrees(random_tree, g)
 subtrees = vcat(subtrees_root, other_subtrees)
