@@ -1,5 +1,4 @@
 # add all imports
-import Pkg; Pkg.add("JSON")
 using HerbSearch, HerbCore, HerbSpecification, HerbInterpret, HerbGrammar, JSON
 
 # include("sampling_grammar.jl")
@@ -24,22 +23,3 @@ println("subtrees: ", [rulenode2expr(subtree, g) for subtree in subtrees])
 subtrees_filtered = [subtree for subtree in subtrees if selection_criteria(random_tree, subtree) > 1]
 
 println("filtered: ", [rulenode2expr(subtree, g) for subtree in subtrees_filtered])
-
-modified_subtrees = []
-for i in 1:length(subtrees)
-    str = string(subtrees[i])
-    modified_string = replace(str, r"hole\[Bool\[[^\]]*\]\]" => "_")
-    push!(modified_subtrees, modified_string)
-end
-
-result = Dict(
-    "ast" => string(random_tree),
-    "subtrees" => modified_subtrees
-)
-
-json_string = JSON.json(result)
-
-open("parser_input.json", "w") do file
-    write(file, json_string)
-end
-
