@@ -1,37 +1,33 @@
 
-# take assign(A, X) grom the parse_output
-# for each assign(A, X) --> look up which compression belongs to it (by comp_root)
-# increment counter of compression
-# for compression score: compression_counter/compression_size (how often is the compression used)
-# and maybe convert back to Herb tree language
+# Compression_info = (key: subtree ID, value: Tuple([subtree node IDs], compression size, # times the subtree is used as compression))
+Compression_info = Dict{Int64, Tuple{Vector, Int64, Int64}}()
 
-Comp_Counter = Dict{Int64, Int64}()
-
-# dict should be a dictionary with compression_node_id as key and compression_root as value
-# compressed_AST should be a list of "assign(A, X)" strings
+# INPUT:
+# d: a dictionary(key: compression_id, value: list of nodes)
+# compressed_AST: ["assign(A, X)", assign(B, Y), ...]
 function analyze_AST_singular(d, compressed_AST)
     for assign in compressed_AST
-        # compression node is index #8 in assign
         comp_node = parse(Int64, (SubString(assign, 8, 8)))
-        comp_id = d[comp_node]
-        println("comp id is ", comp_id)
-        if haskey(Comp_Counter, comp_id)
-            Comp_Counter[comp_id] = Comp_Counter[comp_id] + 1
+        comp_matches = [k for (k,v) in d if comp_node in v][1]
+        @assert length(comp_matches) == 1
+        comp_id = comp_matches[1]
+        if haskey(Compression_info, comp_id)
+            Compression_info[comp_id] = (Compression_info[comp_id][1], Compression_info[comp_id][2], Compression_info[comp_id][3] + 1)
         else
-            Comp_Counter[comp_id] = 1
+            Compression_info[comp_id] = (d[comp_id], length(d[comp_id]), 1)
         end
     end
 end
 
-### example
-# compression node with id 2 is part of the subtree with id 10
-d = Dict(1 => 9, 2 => 10, 4 => 10)
-# compression node with id 2 is assigned to ast node with id 3
-c_ast = ["assign(2, 3)", "assign(4, 5)", "assign(1, 0)"]
 
-analyze_AST_singular(d, c_ast)
+### EXAMPLE
+### Subtree_dict: key: compression id, value: list of nodes
+Subtree_dict = Dict{Int64, Vector}(1 => [7,8,9], 0 => [2,3,5])
+### compression node with id 2 is assigned to ast node with id 3
+c_ast = ["assign(2, 4)", "assign(8, 3)", "assign(9, 5)", "assign(7, 0)"]
 
-println("comp counter")
-println(Comp_Counter)
+analyze_AST_singular(Subtree_dict, c_ast)
 
-
+# println("compression information")
+# println(Compression_info)
+# println([k for (k,v) in Compression_info])
