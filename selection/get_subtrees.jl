@@ -44,10 +44,17 @@ function select_subtrees(tree::RuleNode, g::AbstractGrammar)
     return subtrees
 end
 
+function permutations_helper(n::Int)
+    if n == 0
+        return []
+    else
+        return permutations(n)
+    end
+end
 
 function permutations(n::Int)
     if n == 0
-        return []
+        return [[]]
     else
         smaller_permutations = permutations(n - 1)
         return vcat([vcat(1, perm) for perm in smaller_permutations], [vcat(0, perm) for perm in smaller_permutations])
