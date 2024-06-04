@@ -10,38 +10,53 @@ end
 
 function select_subtrees(tree::RuleNode, g::AbstractGrammar)
     child_subtrees = []
-    subtrees = []
+    subtrees_tree_root = []
+    other_subtrees = []
     for child in tree.children
-        subtrees_child = select_subtrees(child, g)
+        (subtrees_child, other_subtrees_child) = select_subtrees(child, g)
         push!(child_subtrees, subtrees_child)
-        subtrees = vcat(subtrees_child, subtrees)
+        other_subtrees = vcat(other_subtrees, subtrees_child)
+        other_subtrees = vcat(other_subtrees, other_subtrees_child)
         # print("child subtrees:", [rulenode2expr(sub, g) for sub in subtrees], "\n")
     end
     
-    for perm in permutations(length(tree.children))
-        if sum_alt(perm) == 0
+    temp = permutations_helper(length(tree.children))
+    # print(temp, "\n")
+
+    print("permutations: ", temp, "\n")
+    # for every permutation
+    for perm in temp
+        print(perm, "\n")
+        if sum_alt(perm) == length(perm)
+            print("break\n")
             continue
         end
+        print("continue\n")
+        subtree_candidates = []
+        push!(subtree_candidates, deepcopy(tree)) # copy the tree
+        # for every child
         for i in 1:length(perm)
-            subtree = deepcopy(tree)
-            if perm[i] == 1
-                for child_subtree in child_subtrees[i]
-                    # insert!(subtree, HerbGrammar.root_node_loc(subtree.children[i]), child_subtree)
-                    subtree.children[i] = child_subtree
+            for candidate in subtree_candidates
+                if perm[i] == 1
+                    for j in 1:length(child_subtrees[i])
+                        subtree = j == 1 ? candidate : deepcopy(candidate)
+                        child_subtree = child_subtrees[i][j]
+                        subtree.children[i] = child_subtree
+                        # push!(subtree_candidates, subtree)
+                    end
+                else
+                    hole = Hole(get_domain(g, g.bytype[child_types(g, candidate)[i]]))
+                    candidate.children[i] = hole
                 end
-            else
-                # path_to_hole = get_path(subtree, subtree.children[i])
-                hole = Hole(get_domain(g, g.bytype[child_types(g, tree)[i]]))
-                # swap_node(subtree, hole, path_to_hole)
-                subtree.children[i] = hole
-                # insert!(subtree, HerbGrammar.root_node_loc(subtree.children[i]), Hole(get_domain(g, g.bytype[child_types(g, tree)[i]])))
+                # print(perm, rulenode2expr(subtree, g), "\n")
             end
-            push!(subtrees, subtree)
         end	
+        subtrees_tree_root = vcat(subtree_candidates, subtrees_tree_root)
     end
-    push!(subtrees, tree)
+    push!(subtrees_tree_root, tree)
+    # print("=======\n")
     # print([rulenode2expr(sub, g) for sub in subtrees], "\n")
-    return subtrees
+    return (subtrees_tree_root, other_subtrees)
 end
 
 function permutations_helper(n::Int)
