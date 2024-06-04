@@ -17,6 +17,10 @@ function analyze_AST_singular(d, compressed_AST)
             Compression_info[comp_id] = (d[comp_id], length(d[comp_id]), 1)
         end
     end
+
+    for (_,v) in Compression_info
+        @assert mod(v[3], v[2]) == 0
+    end
 end
 
 
@@ -24,10 +28,9 @@ end
 ### Subtree_dict: key: compression id, value: list of nodes
 Subtree_dict = Dict{Int64, Vector}(1 => [7,8,9], 0 => [2,3,5])
 ### compression node with id 2 is assigned to ast node with id 3
-c_ast = ["assign(2, 4)", "assign(8, 3)", "assign(9, 5)", "assign(7, 0)"]
+c_ast = ["assign(2, x)", "assign(3, x)", "assign(5, x)", "assign(8, x)", "assign(9, x)", "assign(7, x)"]
 
 analyze_AST_singular(Subtree_dict, c_ast)
 
-# println("compression information")
-# println(Compression_info)
-# println([k for (k,v) in Compression_info])
+println("compression information")
+println(Compression_info)
