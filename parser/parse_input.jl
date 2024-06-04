@@ -42,6 +42,9 @@ function parse(input, start_index=0)
             pop!(parent_stack)
             parent = top(parent_stack)
             pop!(child_stack)
+        elseif char == '_'
+            child_nr = pop!(child_stack)
+            push!(child_stack, child_nr + 1)
         elseif isdigit(char)
             number, i = parse_number(i, input)
             index += 1 # Nr of node / edge
