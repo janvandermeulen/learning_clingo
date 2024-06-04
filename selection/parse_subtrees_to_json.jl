@@ -1,7 +1,7 @@
 import Pkg; Pkg.add("JSON")
 using HerbSearch, HerbCore, HerbSpecification, HerbInterpret, HerbGrammar, JSON
 
-function parse_subtrees_to_json(subtrees::RuleNode[])
+function parse_subtrees_to_json(subtrees::Vector{Any})
     modified_subtrees = []
     for i in 1:length(subtrees)
         str = string(subtrees[i])
