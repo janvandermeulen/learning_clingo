@@ -1,6 +1,9 @@
 # Import stack datastructure
 import Pkg; Pkg.add("DataStructures"); Pkg.add("JSON")
 using JSON; using DataStructures
+
+# dict(key: compression_node_id, value: compression_root_id)
+Comp_Dict = Dict()
     
 function parse_number(start_index, input)
     number = ""
@@ -47,6 +50,8 @@ function parse(input, start_index=0)
             index += 1 # Nr of node / edge
             if start_index != 0
                 nodes = nodes * "\ncomp_node($index, $number)."
+                # add (index, start_index) to comp dict
+                Comp_Dict[index] = start_index
             else
                 nodes = nodes * "\nnode($index, $number)."
             end
