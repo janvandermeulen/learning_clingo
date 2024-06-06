@@ -1,8 +1,13 @@
-# c_info = (key: subtree ID, value: Tuple([subtree node IDs], subtree size, # times the subtree is used as compression))
+###################### COMPRESSION ANALYSIS #############################
+
+
+# (key: subtree ID, value: NamedTuple([subtree node IDs], # times the subtree is used as compression))
 c_info = Dict{Int64, NamedTuple{(:nodes,:occurences), <:Tuple{Vector,Int64}}}()
 
+
+# FUNCTION: Analyzes 1 AST and puts the resulting compression information in c_info
 # INPUT:
-# d: a dictionary(key: compression_id, value: list of nodes)
+# d: a dictionary(key: compression_id, value: [subtree node IDs])
 # compressed_AST: ["assign(A, X)", assign(B, Y), ...]
 function analyze_AST_singular(d, compressed_AST)
     for assign in compressed_AST
@@ -37,14 +42,69 @@ function analyze_AST_singular(d, compressed_AST)
 end
 
 
-### EXAMPLE
-### Subtree_dict: key: compression id, value: list of nodes
-Subtree_dict = Dict{Int64, Vector}(1 => [7,8,9], 0 => [2,3,5])
+###################### EXAMPLE USAGE #############################
 
-### compression node with id 2 is assigned to ast node with id 3
-c_ast = ["assign(2, x)", "assign(3, x)", "assign(5, x)", "assign(8, x)", "assign(9, x)", "assign(7, x)"]
+# Subtree_dict = Dict{Int64, Vector}(1 => [7,8,9], 0 => [2,3,5])
+# c_ast = ["assign(2, x)", "assign(3, x)", "assign(5, x)", "assign(8, x)", "assign(9, x)", "assign(7, x)", "assign(8, x)", "assign(9, x)", "assign(7, x)"]
 
-analyze_AST_singular(Subtree_dict, c_ast)
+# analyze_AST_singular(Subtree_dict, c_ast)
 
-println("compression information")
-println(c_info)
+# println("compression information")
+# for (k,v) in c_info
+#     println("compression ", k)
+#     println(v)
+#     println()
+# end
+
+
+
+###################### COMPRESSION SELECTION #############################
+
+function select_compression(c, best_n)
+    # change here for the heuristics
+    case = 1
+
+    # sorting the dictionary
+    # case 1: occurences
+    if case == 1
+        println("sorting by #occurences...")
+        c = sort(collect(c), by=x->x[2].occurences, rev=true) # decreasing order of value
+
+        for (k,v) in c
+            print(v.occurences)
+            println(": ", k, " ", v,)
+        end
+    # case 2: occurences * size
+    elseif  case ==2
+        println("sorting by #occurences * tree_size...")
+        c = sort(collect(c), by=x->(x[2].occurences * length(x[2].nodes)), rev=true) # decreasing order of value
+
+        for (k,v) in c
+            print(v.occurences * length(v.nodes))
+            println(": ", k, " ", v,)
+        end
+    end
+
+    # taking the best n percentage
+    index = floor.(Int, length(c) * best_n)
+    c = c[begin:index]
+
+    println("selection is:")
+    for (k,v) in c
+        println(k, " ", v)
+    end
+
+
+end
+
+
+dictionary1 = Dict{Int64, NamedTuple{(:nodes,:occurences), <:Tuple{Vector,Int64}}}(
+    0 => (nodes = [1, 2, 3], occurences = 2),
+    1 => (nodes = [1, 2], occurences = 1),
+    2 => (nodes = [1, 2, 3, 4], occurences = 0),
+    3 => (nodes = [1, 2, 3, 4, 5, 6], occurences = 1),
+    4 => (nodes = [1, 2, 3], occurences = 2),
+    5 => (nodes = [1, 2, 3, 4], occurences = 2))
+
+
+select_compression(dictionary1, 0.5)
