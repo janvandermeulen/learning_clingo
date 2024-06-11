@@ -1,1 +1,4 @@
 .vscode
+grammar_optimiser/clingo_inputs/
+grammar_optimiser/inputs/
+grammar_optimiser/outputs/
