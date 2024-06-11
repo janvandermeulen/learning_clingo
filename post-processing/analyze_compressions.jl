@@ -2,7 +2,6 @@
 
 # FUNCTION: Analyzes 1 AST to see how many times each compression was used
 # INPUT:
-# d: a dictionary (key: compression_id, value: [subtree node IDs])
 # d: the global dictionary (key: node_id, value: namedTuple(compressiond_id, parent_id, child_nr, type))
 # compressed_AST: a list of assign-statements ["assign(A, X)", assign(B, Y), ...]
 # OUTPUT:
