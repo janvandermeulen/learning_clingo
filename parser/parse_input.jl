@@ -1,6 +1,10 @@
 # Import stack datastructure
 import Pkg; Pkg.add("DataStructures"); Pkg.add("JSON")
 using JSON; using DataStructures
+
+# Subtree_dict = (key: subtree ID, value: [subtree node IDs])
+# TODO: make this dictionary globally accessible, or at least accessible for the analyze_compressions.jl
+Subtree_dict = Dict{Int64, Vector}()
     
 function parse_number(start_index, input)
     number = ""
@@ -51,6 +55,11 @@ function parse(input, start_index=0)
             index += 1 # Nr of node / edge
             if start_index != 0
                 nodes = nodes * "\ncomp_node($index, $number)."
+                if haskey(Subtree_dict, start_index)
+                    append!(Subtree_dict[start_index], index)
+                else
+                    Subtree_dict[start_index] = [index]
+                end
             else
                 nodes = nodes * "\nnode($index, $number)."
             end
