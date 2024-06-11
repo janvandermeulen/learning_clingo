@@ -1,5 +1,4 @@
-import Pkg; Pkg.add("CSV"); Pkg.add("DataFrames");
-using CSV; using DataFrames;
+include("../grammar_optimiser/grammar_optimiser.jl")
 
 g = @cfgrammar begin
     Number = |(1:2)
@@ -8,29 +7,28 @@ g = @cfgrammar begin
     Number = Number * Number
 end
 
-path_model = "../parser/parse_input.jl"
-function setup_benchmark()
-    trees = []
-    # Generate trees with the grammar
-    random_tree = rand(RuleNode, g, 5)
-    for i in 1:50
-        push!(trees, random_tree)
-    end
-    # Find all subtrees 
-    
-    # Write the trees and all subtrees to a file - TODO: change this to parse to json and have the right input
+function get_asts()
     ast = CSV.read("inputs/ast.csv", DataFrame)
-    ast_input = ast[:, 1] # Get the input column from the dataframe
-    for (i, ast) in enumerate(ast_input)
-        path = "inputs/ast_input_$i.txt"
-        print("writing ast $i to file: " * ast * "\n")
-        # Casting to IOBuffer otherwise the "{" and "}" cause issues
-        open(path, "w") do file
-            write(file, IOBuffer(String(ast))) 
-        end
-    end
-    # Call clingo 
+    return ast[:, 1]
 
 end
 
-setup_benchmark()
+function benchmark(settings)
+    (asts, g) = get_asts()
+    problem = settings["problem"]
+
+    start_time = time()
+    synth(problem, BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"]))
+    end_time = time()
+    time_taken_original = end_time - start_time
+
+    g = grammar_optimiser(asts, g)
+    start_time = time()
+    synth(problem, BFSIterator(updated_g, settings["output_type"], max_depth=settings["max_depth_iterator"]))
+    end_time = time()
+    time_taken_extended = end_time - start_time
+
+    return (time_taken_original, time_taken_extended)
+end
+
+print(benchmark(["problem" => Problem([IOExample(Dict(:x => x), 2x+1) for x ∈ 1:5]), "output_type" => :Number, "max_depth_iterator" => 5]))
