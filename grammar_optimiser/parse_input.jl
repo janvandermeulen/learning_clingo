@@ -2,8 +2,9 @@
 import Pkg; Pkg.add("DataStructures"); Pkg.add("JSON")
 using JSON; using DataStructures
 
-# Subtree_dict = (key: node ID, value: NamedTuple(compression id, parent id, child index, type))
-global_dict = Dict{Int64, NamedTuple{(:comp_id,:parent_id, :child_nr, :type), <:Tuple{Int64,Int64,Int64,Int64}}}()
+# Subtree_dict = (key: subtree ID, value: [subtree node IDs])
+# TODO: make this dictionary globally accessible, or at least accessible for the analyze_compressions.jl
+Subtree_dict = Dict{Int64, Vector}()
     
 function parse_number(start_index, input)
     number = ""
@@ -30,7 +31,6 @@ function parse(input, start_index=0)
     if start_index != 0
         nodes = nodes * "comp_root($start_index)."
         nodes = nodes * "\ncomp_node($(start_index), $(input[1]))."
-        global_dict[start_index] = (comp_id = start_index, parent_id = -1, child_nr = -1, type = parse(Int64, string(input[1])))
     else
         nodes = nodes * "node($(start_index), $(input[1]))."
     end
@@ -55,16 +55,16 @@ function parse(input, start_index=0)
             index += 1 # Nr of node / edge
             if start_index != 0
                 nodes = nodes * "\ncomp_node($index, $number)."
+                if haskey(Subtree_dict, start_index)
+                    append!(Subtree_dict[start_index], index)
+                else
+                    Subtree_dict[start_index] = [index]
+                end
             else
                 nodes = nodes * "\nnode($index, $number)."
             end
-
             child_nr = pop!(child_stack)
             edges = edges * "\nedge($parent, $index, $child_nr)."
-            if start_index != 0
-                global_dict[index] = (comp_id = start_index, parent_id = parent, child_nr = child_nr, type = parse(Int64, number))
-            end
-
             push!(child_stack, child_nr + 1)
         end
         i += 1
@@ -95,7 +95,7 @@ function parse_json(json_path, output_path)
     end
 end
 
-parse_json(ARGS[1], ARGS[2])
+# parse_json(ARGS[1], ARGS[2])
 """
 Schema:
 Node(id, grammar_rule) e.g. Node(1, 1)

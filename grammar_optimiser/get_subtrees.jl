@@ -1,14 +1,16 @@
-using HerbSearch, HerbCore, HerbSpecification, HerbInterpret, HerbGrammar
+using HerbSearch, HerbCore, HerbSpecification, HerbInterpret, HerbGrammar, DataStructures
+
+
 
 function select_subtrees(tree::RuleNode, g::AbstractGrammar)
     if length(tree.children) == 0
         return ([tree], [])
     end   
     child_subtrees = []
-    subtrees_tree_root = [] # subtrees with papa node
+    subtrees_tree_root = []# subtrees with papa node
     other_subtrees = [] # subtrees without papa node
 
-    for child in tree.children
+    for (i, child) in pairs(tree.children)
         (subtrees_child, other_subtrees_child) = select_subtrees(child, g)
         push!(child_subtrees, subtrees_child)
         other_subtrees = vcat(other_subtrees, subtrees_child, other_subtrees_child)
@@ -17,8 +19,7 @@ function select_subtrees(tree::RuleNode, g::AbstractGrammar)
     # for every combination
     for perm in combinations(length(tree.children))
         
-        subtree_candidates = []
-        push!(subtree_candidates, deepcopy(tree)) # copy the tree
+        subtree_candidates = cons(deepcopy(tree), nil()) # copy the tree
         # for every child
         for (i, include) in pairs(perm)
             for candidate in subtree_candidates
@@ -27,7 +28,7 @@ function select_subtrees(tree::RuleNode, g::AbstractGrammar)
                         subtree = j == 1 ? candidate : deepcopy(candidate)
                         subtree.children[i] = child_subtree
                         if j != 1
-                            push!(subtree_candidates, subtree)
+                            subtree_candidates = cons(subtree, subtree_candidates)
                         end
                     end
                 else
@@ -36,7 +37,7 @@ function select_subtrees(tree::RuleNode, g::AbstractGrammar)
                 end
             end
         end	
-        subtrees_tree_root = vcat(subtree_candidates, subtrees_tree_root)
+        subtrees_tree_root = vcat([candidate for candidate in subtree_candidates], subtrees_tree_root)
     end
 
     return (subtrees_tree_root, other_subtrees)
@@ -56,5 +57,6 @@ function combinations(n::Int)
 end
 
 function selection_criteria(tree::RuleNode, subtree::AbstractRuleNode)
-    return length(subtree) > 1
+    size = length(subtree)
+    return size > 1 && size < length(tree)
 end

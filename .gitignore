@@ -1,1 +1,4 @@
 .vscode
+grammar_optimiser/clingo_inputs/model_input*.lp
+grammar_optimiser/inputs/parser_input*.json
+grammar_optimiser/outputs/clingo_output*.json
