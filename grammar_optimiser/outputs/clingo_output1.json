@@ -16,7 +16,7 @@
         },
         {
           "Value": [
-            "assign(2065,9)", "assign(2064,8)"
+            "assign(532,3)", "assign(531,2)"
           ],
           "Costs": [
             -2
@@ -24,15 +24,15 @@
         },
         {
           "Value": [
-            "assign(2182,9)", "assign(2181,8)", "assign(2183,10)"
+            "assign(545,3)", "assign(544,2)", "assign(546,4)", "assign(548,6)"
           ],
           "Costs": [
-            -3
+            -4
           ]
         },
         {
           "Value": [
-            "assign(2065,9)", "assign(2064,8)", "assign(2152,5)", "assign(2151,4)", "assign(2153,6)"
+            "assign(550,3)", "assign(549,2)", "assign(551,4)", "assign(11,8)", "assign(9,0)"
           ],
           "Costs": [
             -5
@@ -40,7 +40,7 @@
         },
         {
           "Value": [
-            "assign(2182,9)", "assign(2181,8)", "assign(2183,10)", "assign(2152,5)", "assign(2151,4)", "assign(2153,6)"
+            "assign(545,3)", "assign(544,2)", "assign(546,4)", "assign(11,8)", "assign(9,0)", "assign(548,6)"
           ],
           "Costs": [
             -6
@@ -48,7 +48,15 @@
         },
         {
           "Value": [
-            "assign(2169,9)", "assign(2168,8)", "assign(2170,10)", "assign(2152,5)", "assign(2151,4)", "assign(2153,6)", "assign(2171,11)", "assign(2172,12)"
+            "assign(535,3)", "assign(534,2)", "assign(536,4)", "assign(11,8)", "assign(9,0)", "assign(537,5)", "assign(538,6)"
+          ],
+          "Costs": [
+            -7
+          ]
+        },
+        {
+          "Value": [
+            "assign(460,2)", "assign(459,1)", "assign(465,7)", "assign(11,8)", "assign(9,0)", "assign(461,3)", "assign(462,4)", "assign(463,5)"
           ],
           "Costs": [
             -8
@@ -56,18 +64,10 @@
         },
         {
           "Value": [
-            "assign(2169,9)", "assign(2168,8)", "assign(2170,10)", "assign(2132,4)", "assign(2131,3)", "assign(2135,7)", "assign(2133,5)", "assign(2134,6)", "assign(2171,11)", "assign(2172,12)"
+            "assign(245,1)", "assign(244,0)", "assign(252,8)", "assign(246,2)", "assign(251,7)", "assign(247,3)", "assign(248,4)", "assign(249,5)", "assign(250,6)"
           ],
           "Costs": [
-            -10
-          ]
-        },
-        {
-          "Value": [
-            "assign(2169,9)", "assign(2168,8)", "assign(2170,10)", "assign(2132,4)", "assign(2131,3)", "assign(2135,7)", "assign(34,1)", "assign(33,0)", "assign(35,2)", "assign(2133,5)", "assign(2134,6)", "assign(2171,11)", "assign(2172,12)"
-          ],
-          "Costs": [
-            -13
+            -9
           ]
         }
       ]
@@ -80,15 +80,15 @@
     "Optimum": "yes",
     "Optimal": 1,
     "Costs": [
-      -13
+      -9
     ]
   },
   "Calls": 1,
   "Time": {
-    "Total": 0.714,
+    "Total": 0.297,
     "Solve": 0.000,
     "Model": 0.000,
     "Unsat": 0.000,
-    "CPU": 0.711
+    "CPU": 0.296
   }
 }
