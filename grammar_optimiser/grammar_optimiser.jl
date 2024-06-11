@@ -1,5 +1,6 @@
 import Pkg; 
-Pkg.add("HerbCore"); using HerbCore; using Base;
+using HerbCore; using Base; using CSV;
+Pkg.add("HerbCore"); 
 include("get_subtrees.jl")
 include("parse_subtrees_to_json.jl")
 include("parse_input.jl")
@@ -66,19 +67,22 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
     # 5. Analyse clingo output
 end
 
-g = @cfgrammar begin
-    Number = |(1:2)
-    Number = x
-    Number = Number + Number 
-    Number = Number * Number
+
+function main(ARGS)
+    g = @cfgrammar begin
+        Number = |(1:2)
+        Number = x
+        Number = Number + Number 
+        Number = Number * Number
+    end
+    trees::Vector{RuleNode} = []
+    # Generate trees with the grammar
+    for i in 1:3
+        push!(trees, rand(RuleNode, g, 5))
+        print("Tree $i: " * string(trees[i]) * "\n")
+    end
+    print("running optimiser \n")
+    grammar_optimiser(trees, g)
 end
-trees::Vector{RuleNode} = []
-# Generate trees with the grammar
-for i in 1:3
-    push!(trees, rand(RuleNode, g, 5))
-    print("Tree $i: " * string(trees[i]) * "\n")
-end
-print("running optimiser \n")
-grammar_optimiser(trees, g)
 
 
