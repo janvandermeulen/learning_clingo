@@ -20,7 +20,7 @@ function parse_number(start_index, input)
     return number, i - 1
 end
 
-function parse(input, start_index=0)
+function parse_tree(input, start_index=0)
     nodes, edges, output = "","",""
     parent, index = start_index, start_index
     # parent_stack keeps track of the parent node
@@ -30,7 +30,7 @@ function parse(input, start_index=0)
     if start_index != 0
         nodes = nodes * "comp_root($start_index)."
         nodes = nodes * "\ncomp_node($(start_index), $(input[1]))."
-        # global_dict[start_index] = (comp_id = start_index, parent_id = -1, child_nr = -1, type = parse(Int64, string(input[1])))
+        global_dict[start_index] = (comp_id = start_index, parent_id = -1, child_nr = -1, type = parse(Int64, string(input[1])), children = Vector{Int64}())
     else
         nodes = nodes * "node($(start_index), $(input[1]))."
     end
@@ -61,8 +61,7 @@ function parse(input, start_index=0)
             child_nr = pop!(child_stack)
             edges = edges * "\nedge($parent, $index, $child_nr)."
             if start_index != 0
-                # global_dict[index] = (comp_id = start_index, parent_id = parent, child_nr = child_nr, type = parse(Int64, number))
-                global_dict[index] = (comp_id = start_index, parent_id = parent, child_nr = child_nr, type = 0, children = Vector{}())
+                global_dict[index] = (comp_id = start_index, parent_id = parent, child_nr = child_nr, type = 0, children = Vector{Int64}())
                 append!(global_dict[parent].children, index)
             end
             
@@ -85,9 +84,9 @@ function parse_json(json_path, output_path)
     ast = json_parsed["ast"]
     subtrees = json_parsed["subtrees"]
     # Parse the JSON file
-    index, output = parse(ast)
+    index, output = parse_tree(ast)
     for (i, subtree) in enumerate(subtrees)
-        index, temp_output = parse(subtree, index)
+        index, temp_output = parse_tree(subtree, index)
         output = output * ("\n\n%Subtree $i\n") * temp_output
     end
     # Write the output to a file

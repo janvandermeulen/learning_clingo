@@ -80,7 +80,7 @@ end
 # c: a dictionary (key: compression_id, value: tuple(size, # occurences))
 # best_n: a float in range [0,1], that specifies what proportion of the compressions will get selected
 # OUTPUT:
-# c: a sorted and filtered dictionary (key: compression_id, value: NamedTuple([subtree node IDs], # occurences))
+# c: a sorted and filtered list of compression IDs
 function select_compression(c, best_n)
     # change here for the heuristics
     case = 1
@@ -115,7 +115,7 @@ function select_compression(c, best_n)
         println(k, " ", v)
     end
     
-   return c
+   return keys(c)
 end
 
 
