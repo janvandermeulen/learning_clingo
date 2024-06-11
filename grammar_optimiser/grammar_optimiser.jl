@@ -19,12 +19,12 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
         # print("Time for tree selection 1: " * string(time() - test) * "\n"); test = time()
         subtrees = vcat(subtrees_root, other_subtrees)
         # print("Time for concatenation 1: " * string(time() - test) * "\n"); test = time()
+        subtrees = filter(subtree -> selection_criteria(tree, subtree), subtrees) #remove subtrees size 1 and treesize
         subtree_set = vcat(subtree_set, subtrees)
         # print("Time for concatenation 2: " * string(time() - test) * "\n"); test = time()
     end
     print("Time for stage 1: " * string(time() - start_time) * "\n"); start_time = time()
     subtree_set = unique(subtree_set)
-    subtree_set = filter(subtree -> length(subtree) > 1, subtree_set)     # 1b. Prune subtrees - remove all subtrees of size 1
     print("Stage 2: parse subtrees to json\n")     # 2. Parse subtrees to json
 
     for (id, tree) in enumerate(trees)
