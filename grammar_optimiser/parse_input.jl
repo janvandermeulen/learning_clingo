@@ -1,6 +1,7 @@
 # Import stack datastructure
 import Pkg; Pkg.add("DataStructures"); Pkg.add("JSON")
-using JSON; using DataStructures
+using JSON; using DataStructures;
+
 
 # Subtree_dict = (key: subtree ID, value: [subtree node IDs])
 # TODO: make this dictionary globally accessible, or at least accessible for the analyze_compressions.jl

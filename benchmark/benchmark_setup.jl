@@ -1,5 +1,6 @@
 import Pkg; Pkg.add("CSV"); Pkg.add("DataFrames");
-using CSV; using DataFrames;
+using CSV; using DataFrames; 
+using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
 g = @cfgrammar begin
     Number = |(1:2)
