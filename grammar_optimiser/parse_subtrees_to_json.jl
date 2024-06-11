@@ -8,9 +8,8 @@ function parse_subtrees_to_json(subtrees::Vector{Any}, tree::RuleNode, id::Int)
         modified_string = replace(str, r"hole\[Bool\[[^\]]*\]\]" => "_")
         push!(modified_subtrees, modified_string)
     end
-
     result = Dict(
-        "ast" => string(tree),
+        "ast" => length(string(tree)) > 2 ? string(tree) : string(tree)[1],
         "subtrees" => modified_subtrees
     )
 

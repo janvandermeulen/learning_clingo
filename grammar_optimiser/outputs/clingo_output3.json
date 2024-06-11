@@ -1,0 +1,54 @@
+{
+  "Solver": "clingo version 5.7.1",
+  "Input": [
+    "model.lp","clingo_inputs/model_input3.lp"
+  ],
+  "Call": [
+    {
+      "Witnesses": [
+        {
+          "Value": [
+            
+          ],
+          "Costs": [
+            0
+          ]
+        },
+        {
+          "Value": [
+            "assign(2138,1)", "assign(2137,0)"
+          ],
+          "Costs": [
+            -2
+          ]
+        },
+        {
+          "Value": [
+            "assign(2186,1)", "assign(2185,0)", "assign(2187,2)"
+          ],
+          "Costs": [
+            -3
+          ]
+        }
+      ]
+    }
+  ],
+  "Result": "OPTIMUM FOUND",
+  "Models": {
+    "Number": 3,
+    "More": "no",
+    "Optimum": "yes",
+    "Optimal": 1,
+    "Costs": [
+      -3
+    ]
+  },
+  "Calls": 1,
+  "Time": {
+    "Total": 0.685,
+    "Solve": 0.000,
+    "Model": 0.000,
+    "Unsat": 0.000,
+    "CPU": 0.682
+  }
+}

@@ -82,7 +82,7 @@ function parse_json(json_path, output_path)
     end
 end
 
-parse_json(ARGS[1], ARGS[2])
+# parse_json(ARGS[1], ARGS[2])
 """
 Schema:
 Node(id, grammar_rule) e.g. Node(1, 1)
