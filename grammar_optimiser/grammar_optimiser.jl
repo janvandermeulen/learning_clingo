@@ -63,6 +63,20 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
         print("Best value: " * string(value) * "\n")
     end
     # 5. Analyse clingo output
+
+    # ANALYZE COMPRESSIONS FUNCTIONS
+
+    new_grammar = grammar
+
+    for compression_id in compressions
+        tree = generate_tree_from_compression(compression_id, global_dict, compression_id)
+        new_grammar = extendGrammar(tree, new_grammar)
+    end
+
+    println(new)
+
+    return new_grammar
+
 end
 
 g = @cfgrammar begin
