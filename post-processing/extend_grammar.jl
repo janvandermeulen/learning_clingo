@@ -6,16 +6,29 @@ using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 #### global dictionary d: (key: node_id, value: namedTuple(compression_id, parent_id, child_nr, type))
 #### one compression ID: int
 # output: Herb tree
-function getNodes(d, compression)
-    s = Set()
 
-    # get the nodes needed for this tree, aka all that belong to the compression
-    for (node_id, v) in d
-        if v.compression_id == compression
-            push!(s, (node_id, v))
+function generate_tree_from_compression(parent, d, compression_id)
+    children::Vector{RuleNode} = []
+    for (key, value) in d
+        if (value.parent_id == parent && value.comp_id == compression_id)
+            child = key
+            child_tree = generate_tree_from_compression(child, d, compression_id)
+            push!(children, child_tree)
         end
     end
 
+    tree = RuleNode(d[parent].type, children)
+    return tree
+end
+
+function getNodes(d, compression_id)
+
+    parent = compression_id
+
+    tree = generate_tree_from_compression(parent, d, compression_id)
+
+    return tree
+    
     # tree::RuleNode
     # rootNode
     # matching type with grammar rule?
@@ -28,11 +41,25 @@ end
 # input: herb tree, standard grammar
 # output: extended grammar
 function extendGrammar(tree, grammar)
+
     new_grammar_rule = rulenode2expr(tree, grammar)
     add_rule!(grammar, :(Number = $new_grammar_rule))
 
     return grammar
 end
+
+Subtree_dict = Dict{Int64, NamedTuple{(:comp_id, :parent_id, :child_nr, :type), <:Tuple{Int64,Int64,Int64,Int64}}}(
+    2 => (comp_id = 2, parent_id = -1, child_nr = -1, type = 2),
+    3 => (comp_id = 2, parent_id = 2, child_nr = 1, type = 2),
+    5 => (comp_id = 2, parent_id = 2, child_nr = 2, type = 4),
+    7 => (comp_id = 7, parent_id = -1, child_nr = -1, type = 0),
+    8 => (comp_id = 7, parent_id = 7, child_nr = 0, type = 1),
+    9 => (comp_id = 7, parent_id = 7, child_nr = 1, type = 1),
+)
+c_ast = ["assign(2, x)", "assign(3, x)", "assign(5, x)", "assign(8, x)", "assign(9, x)", "assign(7, x)", "assign(8, x)", "assign(9, x)", "assign(7, x)"]
+
+tree = getNodes(Subtree_dict, 2)
+println(tree)
 
 g = @cfgrammar begin
     Number = |(1:2)
@@ -41,11 +68,6 @@ g = @cfgrammar begin
     Number = Number * Number
 end
 
-problem = Problem([IOExample(Dict(:x => x), 2x+1) for x ∈ 1:5])
-
-iterator = BFSIterator(g, :Number, max_depth=5)
-solution, flag = synth(problem, iterator)
-
-new = extendGrammar(solution, g)
+new = extendGrammar(tree, g)
 
 println(new)
