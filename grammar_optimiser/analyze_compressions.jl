@@ -2,7 +2,7 @@
 
 # FUNCTION: Analyzes 1 AST to see how many times each compression was used
 # INPUT:
-# d: the global dictionary (key: node_id, value: namedTuple(compressiond_id, parent_id, child_nr, type))
+# d: the global dictionary (key: node_id, value: namedTuple(compressiond_id, parent_id, child_nr, type, [children]))
 # compressed_AST: a list of assign-statements ["assign(A, X)", assign(B, Y), ...]
 # OUTPUT:
 # c_info: an dict(key: compression_id, value: Tuple(size, # occurences)))
@@ -18,12 +18,7 @@ function analyze_AST_singular(d, compressed_AST)
         node_id = parse(Int64, (SubString(assign, 8, 8)))
 
         # find all the compressions that contain that node
-        # comp_matches = [C for (C, nodes) in d if node_id in nodes]
         C = d[node_id].comp_id
-
-        # there should only be one compression with that node id
-        # @assert length(comp_matches) == 1
-        # C = comp_matches[1]
 
         # increment the counter if the compression C has been used already
         if haskey(c_info, C)
@@ -36,13 +31,8 @@ function analyze_AST_singular(d, compressed_AST)
     end
 
     for (C, v) in c_info
-        # s = length(v.nodes)
-        # s = getCompressionSize(d, C)
-        # println(s)
-
- 
         # the sum of occurences of all nodes of a compression must be exactly divisible by the compression's size
-        @assert mod(v.occurences, v.size) == 0
+        @assert mod(v.occurences, v.size) == 0 || v.size == 0
         c_info[C] = (size = v.size, occurences = trunc(Int, v.occurences / v.size))
     end
 
@@ -62,13 +52,13 @@ end
 ###################### EXAMPLE USAGE #############################
 
 # Subtree_dict = Dict{Int64, Vector}(1 => [7,8,9], 0 => [2,3,5])
-Subtree_dict = Dict{Int64, NamedTuple{(:comp_id, :parent_id, :child_nr, :type), <:Tuple{Int64,Int64,Int64,Int64}}}(
-    2 => (comp_id = 2, parent_id = -1, child_nr = -1, type = 2),
-    3 => (comp_id = 2, parent_id = 2, child_nr = 1, type = 2),
-    5 => (comp_id = 2, parent_id = 2, child_nr = 2, type = 4),
-    7 => (comp_id = 7, parent_id = -1, child_nr = -1, type = 0),
-    8 => (comp_id = 7, parent_id = 7, child_nr = 0, type = 1),
-    9 => (comp_id = 7, parent_id = 7, child_nr = 1, type = 1),
+Subtree_dict = Dict{Int64, NamedTuple{(:comp_id, :parent_id, :child_nr, :type, :children), <:Tuple{Int64,Int64,Int64,Int64,Vector}}}(
+    2 => (comp_id = 2, parent_id = -1, child_nr = -1, type = 2, children = [3, 5]),
+    3 => (comp_id = 2, parent_id = 2, child_nr = 1, type = 2, children = []),
+    5 => (comp_id = 2, parent_id = 2, child_nr = 2, type = 4, children = []),
+    7 => (comp_id = 7, parent_id = -1, child_nr = -1, type = 0, children = [8,9]),
+    8 => (comp_id = 7, parent_id = 7, child_nr = 0, type = 1, children = []),
+    9 => (comp_id = 7, parent_id = 7, child_nr = 1, type = 1, children = []),
 )
 c_ast = ["assign(2, x)", "assign(3, x)", "assign(5, x)", "assign(8, x)", "assign(9, x)", "assign(7, x)", "assign(8, x)", "assign(9, x)", "assign(7, x)"]
 
