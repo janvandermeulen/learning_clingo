@@ -1,5 +1,5 @@
-import Pkg; Pkg.add("CSV"); Pkg.add("DataFrames");
-using CSV; using DataFrames; 
+import Pkg;  Pkg.add("DataFrames"); Pkg.add("CSV");
+ using DataFrames; using CSV;
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
 g = @cfgrammar begin
