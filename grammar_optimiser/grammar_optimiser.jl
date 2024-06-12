@@ -4,6 +4,7 @@ include("get_subtrees.jl")
 include("parse_subtrees_to_json.jl")
 include("parse_input.jl")
 include("parse_output.jl")
+include("analyze_compressions.jl")
 
 function run_command(command)
     run(`$command`)
@@ -30,10 +31,12 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
     for (id, tree) in enumerate(trees)
         parse_subtrees_to_json(subtree_set, tree, id)
     end
+    global_dicts = []
     for i in 1:length(trees)
-        input_location = Sys.iswindows() ? "grammar_optimiser/inputs/parser_input$(i).json" : "inputs/parser_input$(i).json"
-        output_location = Sys.iswindows() ? "grammar_optimiser/clingo_inputs/model_input$(i).lp" : "clingo_inputs/model_input$(i).lp"
-        parse_json(input_location, output_location)
+        input_location = Sys.iswindows() ? "grammar_optimiser/inputs/parser_input$(i).json" : "grammar_optimiser/inputs/parser_input$(i).json"
+        output_location = Sys.iswindows() ? "grammar_optimiser/clingo_inputs/model_input$(i).lp" : "grammar_optimiser/clingo_inputs/model_input$(i).lp"
+        global_dict = parse_json(input_location, output_location)
+        push!(global_dicts, global_dict)
     end
     print("Time for stage 2 : " * string(time() - start_time) * "\n"); start_time = time()
     print("Stage 3: call clingo\n")
@@ -62,18 +65,24 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
     for value in best_values
         print("Best value: " * string(value) * "\n")
     end
-    # 5. Analyse clingo output
 
-    # ANALYZE COMPRESSIONS FUNCTIONS
+    print("Stage 5: Analyze subtrees\n") # 5. Analyse clingo output
+    best_n = 1 # which percentage of compressions do we want (will be rounded up)
 
-    new_grammar = grammar
+    for i in 1:length(trees)
+        node_assignments = best_values[i]
+        compression_stats = analyze_AST_singular(global_dicts[i], node_assignments)
+        best_compressions = select_compression(compression_stats, best_n)
 
-    for compression_id in compressions
-        tree = generate_tree_from_compression(compression_id, global_dict, compression_id)
-        new_grammar = extendGrammar(tree, new_grammar)
+        new_grammar = grammar
+
+        println("best compressions:")
+        for b in best_compressions
+            tree = generate_tree_from_compression(b, global_dicts, b)
+            new_grammar = extendGrammar(tree, new_grammar)
+            println("compression ", b)
+        end
     end
-
-    println(new)
 
     return new_grammar
 
