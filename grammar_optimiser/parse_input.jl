@@ -2,9 +2,6 @@
 import Pkg; Pkg.add("DataStructures"); Pkg.add("JSON")
 using JSON; using DataStructures
 
-# global_dict = (key: node ID, value: NamedTuple(compression id, parent id, child index, type, [children]))
-global_dict = Dict{Int64, NamedTuple{(:comp_id,:parent_id, :child_nr, :type, :children), <:Tuple{Int64,Int64,Int64,Int64,Vector}}}()
-    
 function parse_number(start_index, input)
     number = ""
     i = start_index
@@ -20,7 +17,7 @@ function parse_number(start_index, input)
     return number, i - 1
 end
 
-function parse_tree(input, start_index=0)
+function parse_tree(input, global_dict=nothing, start_index=0)
     nodes, edges, output = "","",""
     parent, index = start_index, start_index
     # parent_stack keeps track of the parent node
@@ -78,6 +75,7 @@ function parse_tree(input, start_index=0)
 end
 
 function parse_json(json_path, output_path)
+    global_dict = Dict{Int64, NamedTuple{(:comp_id,:parent_id, :child_nr, :type, :children), <:Tuple{Int64,Int64,Int64,Int64,Vector}}}()
     # Read in the JSON file
     json_content = read(json_path, String)
     json_parsed = JSON.parse(json_content)
@@ -86,13 +84,14 @@ function parse_json(json_path, output_path)
     # Parse the JSON file
     index, output = parse_tree(ast)
     for (i, subtree) in enumerate(subtrees)
-        index, temp_output = parse_tree(subtree, index)
+        index, temp_output = parse_tree(subtree, global_dict, index)
         output = output * ("\n\n%Subtree $i\n") * temp_output
     end
     # Write the output to a file
     open(output_path, "w") do f
         write(f, output)
     end
+    return global_dict
 end
 
 # parse_json(ARGS[1], ARGS[2])
