@@ -15,9 +15,15 @@ function analyze_AST_singular(d, compressed_AST)
     for assign in compressed_AST
 
         # parse the compression node id
-        node_id = parse(Int64, (SubString(assign, 8, 8)))
+        node_id = nothing
 
-        # find all the compressions that contain that node
+        m = match(r"\((\d+),", assign)
+
+        @assert m !== nothing
+        @assert length(m.captures) == 1
+        node_id = parse(Int64, m.captures[1])
+
+        # find all the compressions of that node
         C = d[node_id].comp_id
 
         # increment the counter if the compression C has been used already
@@ -32,7 +38,7 @@ function analyze_AST_singular(d, compressed_AST)
 
     for (C, v) in c_info
         # the sum of occurences of all nodes of a compression must be exactly divisible by the compression's size
-        @assert mod(v.occurences, v.size) == 0 || v.size == 0
+        @assert (mod(v.occurences, v.size) == 0) || (v.size == 0)
         c_info[C] = (size = v.size, occurences = trunc(Int, v.occurences / v.size))
     end
 
@@ -62,14 +68,14 @@ Subtree_dict = Dict{Int64, NamedTuple{(:comp_id, :parent_id, :child_nr, :type, :
 )
 c_ast = ["assign(2, x)", "assign(3, x)", "assign(5, x)", "assign(8, x)", "assign(9, x)", "assign(7, x)", "assign(8, x)", "assign(9, x)", "assign(7, x)"]
 
-c_info = analyze_AST_singular(Subtree_dict, c_ast)
+# c_info = analyze_AST_singular(Subtree_dict, c_ast)
 
-println("compression information")
-for (k,v) in c_info
-    println("compression ", k)
-    println(v)
-    println()
-end
+# println("compression information")
+# for (k,v) in c_info
+#     println("compression ", k)
+#     println(v)
+#     println()
+# end
 
 
 
@@ -83,7 +89,7 @@ end
 # c: a sorted and filtered list of compression IDs
 function select_compression(c, best_n)
     # change here for the heuristics
-    case = 1
+    case = 2
 
     # sorting the dictionary
     # case 1: occurences
@@ -114,20 +120,20 @@ function select_compression(c, best_n)
     for (k,v) in c
         println(k, " ", v)
     end
-    
-   return keys(c)
+
+   return map(first, c)
 end
 
 
 ###################### EXAMPLE USAGE #############################
 
-dictionary1 = Dict{Int64, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}(
-    0 => (size = 3, occurences = 2),
-    1 => (size = 1, occurences = 1),
-    2 => (size = 4, occurences = 0),
-    3 => (size = 2, occurences = 1),
-    4 => (size = 3, occurences = 2),
-    5 => (size = 2, occurences = 2))
+# dictionary1 = Dict{Int64, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}(
+#     0 => (size = 3, occurences = 2),
+#     1 => (size = 1, occurences = 1),
+#     2 => (size = 4, occurences = 0),
+#     3 => (size = 2, occurences = 1),
+#     4 => (size = 3, occurences = 2),
+#     5 => (size = 2, occurences = 2))
 
 
-select_compression(dictionary1, 0.45) 
+# select_compression(dictionary1, 0.45) 
