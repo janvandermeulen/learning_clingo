@@ -59,6 +59,6 @@ g = @cfgrammar begin
     Number = Number * Number
 end
 
-new = extendGrammar(tree, g)
+# new = extendGrammar(tree, g)
 
-println(new)
+# println(new)

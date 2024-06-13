@@ -5,6 +5,7 @@ include("parse_subtrees_to_json.jl")
 include("parse_input.jl")
 include("parse_output.jl")
 include("analyze_compressions.jl")
+include("extend_grammar.jl")
 
 function run_command(command)
     run(`$command`)
@@ -69,6 +70,8 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
     print("Stage 5: Analyze subtrees\n") # 5. Analyse clingo output
     best_n = 1 # which percentage of compressions do we want (will be rounded up)
 
+    new_grammar = nothing
+
     for i in 1:length(trees)
         node_assignments = best_values[i]
         compression_stats = analyze_AST_singular(global_dicts[i], node_assignments)
@@ -78,7 +81,7 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
 
         println("best compressions:")
         for b in best_compressions
-            tree = generate_tree_from_compression(b, global_dicts, b)
+            tree = generate_tree_from_compression(b, global_dicts[i], b)
             new_grammar = extendGrammar(tree, new_grammar)
             println("compression ", b)
         end
