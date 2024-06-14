@@ -70,21 +70,27 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
     print("Stage 5: Analyze subtrees\n") # 5. Analyse clingo output
     best_n = 1 # which percentage of compressions do we want (will be rounded up)
 
-    new_grammar = nothing
+    all_stats = Vector{Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}}()
 
     for i in 1:length(trees)
         node_assignments = best_values[i]
-        compression_stats = analyze_AST_singular(global_dicts[i], node_assignments)
-        best_compressions = select_compression(compression_stats, best_n)
 
-        new_grammar = grammar
+        stats = generate_stats(global_dicts[i], node_assignments)
 
-        println("best compressions:")
-        for b in best_compressions
-            tree = generate_tree_from_compression(b, global_dicts[i], b)
-            new_grammar = extendGrammar(tree, new_grammar)
-            println("compression ", b)
-        end
+        stats = generate_trees_from_compressions(global_dicts[i], stats)
+
+        push!(all_stats, stats)
+    end
+
+    combined_stats = zip_stats(all_stats)
+    best_compressions = select_compressions(combined_stats, best_n)
+
+    new_grammar = grammar
+
+    println("best compressions:")
+    for b in best_compressions
+        println(b)
+        new_grammar = extendGrammar(b, new_grammar)
     end
 
     return new_grammar

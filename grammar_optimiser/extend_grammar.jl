@@ -20,7 +20,19 @@ function generate_tree_from_compression(parent, d, compression_id)
     tree = RuleNode(d[parent].type, children)
     return tree
 end
+
+# calls above function for an entire dict of compressions
+function generate_trees_from_compressions(global_dict, stats)
+
+    tree_stats_dict = Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}()
+
+    for (comp_id, values) in stats
+        t = generate_tree_from_compression(comp_id, global_dict, comp_id)
+        tree_stats_dict[t] = values
+    end
     
+    return tree_stats_dict
+end
     # tree::RuleNode
     # rootNode
     # matching type with grammar rule?
