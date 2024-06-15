@@ -3,46 +3,6 @@ include("../grammar_optimiser/grammar_optimiser.jl")
 using DataFrames; using CSV; using Base;
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
-function create_solutions(grammar) :: Vector{RuleNode}
-    csv = CSV.read(joinpath(dirname(@__FILE__), "inputs", "ast.csv"), DataFrame)
-    functions = csv[:, 2]
-    asts = csv[:, 1]
-    for fun in functions
-        println("function: " * fun)
-        println("grammar:\n" * string(grammar))
-        println(string2rulenode(fun, grammar))
-    end
-end
-
-function string2rulenode(str::String, grammar::AbstractGrammar)
-    temp_expr = Meta.parse(str)
-    expr = Base.remove_linenums!(temp_expr)
-    return expr2rulenode(expr, grammar)
-end
-
-function expr2rulenode(expr::Expr, grammar::AbstractGrammar) :: RuleNode
-    if expr.head == :call
-        # get the rule index
-        rule = findfirst(==(expr), grammar.rules)
-        if isnothing(rule)
-            error("Rule: " * string(rule) * "not found in the grammar")
-        end
-        # create a rulenode
-        rulenode = RuleNode(rule, [])
-        return rulenode
-    elseif expr.head == :block
-        rulenode = RuleNode(3, [expr2rulenode(e, grammar) for e in expr.args])
-    else
-        error("Only call and block expressions are supported")
-    end
-end
-
-
-function get_asts() 
-    ast = CSV.read(joinpath(dirname(@__FILE__), "inputs", "ast.csv"), DataFrame)
-    return ast[:, 1]
-end
-
 function benchmark(settings)
     (asts, g) = get_asts()
     problem = settings["problem"]
