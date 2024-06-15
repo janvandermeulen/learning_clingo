@@ -2,33 +2,29 @@ import Pkg;
 Pkg.add("DataFrames"); Pkg.add("CSV"); Pkg.add(["HerbGrammar", "HerbSpecification", "HerbSearch", "HerbInterpret"]); 
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret; using DataFrames; using CSV;
 
-
-g = @cfgrammar begin
-    Number = |(1:2)
-    Number = x
-    Number = Number + Number 
-    Number = Number * Number
-end
-
-
-function create_input(csv_path:: String) :: Vector{RuleNode}
+function create_input(csv_path:: String, debug=False) :: Vector{RuleNode}
     """
     # Arguments
     - `csv_path::String`: Path to the csv file containing the ASTs.
     # Result 
     - `results::Vector{RuleNode}`: the ASTs converted to RuleNodes such that they can be used as input to the grammar_optimiser. 
     """
-    csv = CSV.read(csv_path, DataFrame)
+    csv = CSV.read(csv_path, DataFrame, types=Union{String, String})
     asts = csv[:, 1]
     results :: Vector{RuleNode} = []
     for ast in asts
-        println("ast: " * ast)
-        push!(results, string_2_rulenode(ast))
+        rulenode = string_2_rulenode(ast, debug)
+        if debug
+            println("ast: " * string(ast))
+            println("resulting rulenode: " * string(rulenode))
+        end
+        push!(results, rulenode)
     end
+    return results
 end
 
 # Rulenode constructors
-# 1: RuleNode(ind::Int, _val::Any) - _val is optional and this is used for terminal nodes
+# 1: RuleNode(ind::Int, _val::Any) - _val is optional for cache optimisation and this is used for terminal nodes
 # 2: RuleNode(ind::Int, children::Vector{AbstractRuleNode})
 function string_2_rulenode(ast::String,debug::Bool=false) :: RuleNode
     """
@@ -46,70 +42,6 @@ function string_2_rulenode(ast::String,debug::Bool=false) :: RuleNode
     println("With rootnode: " * string(parse(Int, ast[1])))
     return RuleNode(parse(Int, ast[1]), parse_all_children(ast, 3, length(ast) - 1, debug))
     # return string_2_rulenode_rec(ast, 1, length(ast), debug)
-end
-
-function string_2_rulenode_rec(ast::String, start_index::Int, end_index::Int, debug::Bool) :: RuleNode
-    """
-    Given an AST, this function parses the children of the AST and returns the RuleNode of the AST and the index of the next character to be parsed.
-    # Arguments
-    - `ast::String`: AST to be converted to RuleNode.
-    - `index::Int`: Index in the string where the child is located
-    # Result
-    - `rulenode::RuleNode`: the AST converted to RuleNode such that it can be used as input to the grammar_optimiser.
-    - `index::Int`: Index of the next character to be parsed.
-    """
-    i::Int = start_index
-    ind = ast[i] # We expect the first character to be the index of the grammar rule for that node
-    children::Vector{RuleNode} = []
-
-
-
-    while i <= end_index
-        char = ast[i]
-        if debug
-            println("Debug for iteration i: " * string(i) * " char: " * string(char))
-            println("char is digit: " * string(isdigit(char)))
-            println("char is terminal: " * string(is_terminal(ast, i)))
-        end
-        if isdigit(char)
-            # Option 1: Rulenode is a terminal node
-            if is_terminal(ast, i)
-                if debug 
-                    println("Terminal node: " * string(char))
-                end
-                push!(children, RuleNode(parse(Int, char)))
-            else 
-            # Option 2: Rulenode is a non-terminal node -> Parse children and then add to child list
-                next_brace = find_closing_brace(ast, i + 2)
-                if debug
-                    println("Non-terminal node: " * string(char))
-                    println("Next brace: " * string(next_brace))
-                    println("Going into recursive method with ast: " * ast[i + 2:next_brace-1])
-                    println("=====RECURSIVE METHOD=====")
-                end
-                children = parse_all_children(ast, i + 2, next_brace - 1, debug)
-                println("Size of children: " * string(length(children)))
-                for i in 1:length(children)
-                    if debug 
-                        println("Pushing child: " * string(i) * " " * string(children[i]))
-                    end 
-                    push!(children, children[i])
-                end
-                i = next_brace
-            end
-        end
-        if debug
-            println("======NEXT ITERATION=====")
-        end
-        i = i + 1
-    end 
-    if debug
-        println("Final tree is: " * string(RuleNode(parse(Int, ind), children)))
-        println("Children of the tree are: "* string(children))
-        println("Root of the tree is: " * string(parse(Int, ind)))
-        println("========END OF METHOD=======")
-    end
-    return RuleNode(parse(Int, ind), children)
 end
 
 function parse_all_children(ast::String, start_index::Int, end_index::Int, debug::Bool) :: Vector{RuleNode}
@@ -206,8 +138,22 @@ end
 # csv_path = CSV.read(joinpath(dirname(@__FILE__), "inputs", "ast.csv"), DataFrame)
 # create_input(csv_path, g)
 
+g = @cfgrammar begin
+    Number = |(1:2)
+    Number = x
+    Number = Number + Number 
+    Number = Number * Number
+end
+
+
+trees = create_input(joinpath(dirname(@__FILE__), "inputs", "ast.csv"), true)
+# for tree in trees
+#     println("Tree is: " * string(tree))
+#     println("Children of the tree are: "* string(tree.children))
+#     println(rulenode2expr(tree, g))
+# end
 # Test
-tree = string_2_rulenode("4{4{1,1}1}", true)
-println("Children of the tree are: "* string(tree.children))
-println("Tree is: " * string(tree))
-println(rulenode2expr(tree, g))
+# tree = string_2_rulenode("5{5{5{2,2}4{1,4{2,2}}}3}", true)
+# println("Children of the tree are: "* string(tree.children))
+# println("Tree is: " * string(tree))
+# println(rulenode2expr(tree, g))
