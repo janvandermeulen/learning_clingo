@@ -5,6 +5,7 @@ include("get_subtrees.jl")
 include("parse_subtrees_to_json.jl")
 include("parse_input.jl")
 include("parse_output.jl")
+include("analyze_compressions.jl")
 
 function run_command(command)
     run(`$command`)
@@ -21,21 +22,23 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
         # print("Time for tree selection 1: " * string(time() - test) * "\n"); test = time()
         subtrees = vcat(subtrees_root, other_subtrees)
         # print("Time for concatenation 1: " * string(time() - test) * "\n"); test = time()
+        subtrees = filter(subtree -> selection_criteria(tree, subtree), subtrees) #remove subtrees size 1 and treesize
         subtree_set = vcat(subtree_set, subtrees)
         # print("Time for concatenation 2: " * string(time() - test) * "\n"); test = time()
     end
     print("Time for stage 1: " * string(time() - start_time) * "\n"); start_time = time()
     subtree_set = unique(subtree_set)
-    subtree_set = filter(subtree -> length(subtree) > 1, subtree_set)     # 1b. Prune subtrees - remove all subtrees of size 1
     print("Stage 2: parse subtrees to json\n")     # 2. Parse subtrees to json
 
     for (id, tree) in enumerate(trees)
         parse_subtrees_to_json(subtree_set, tree, id)
     end
+    global_dicts = []
     for i in 1:length(trees)
         input_location = joinpath(dir_path, "inputs", "parser_input$(i).json")
         output_location = joinpath(dir_path, "clingo_inputs", "model_input$(i).lp")
-        parse_json(input_location, output_location)
+        global_dict = parse_json(input_location, output_location)
+        push!(global_dicts, global_dict)
     end
     print("Time for stage 2 : " * string(time() - start_time) * "\n"); start_time = time()
     print("Stage 3: call clingo\n")
@@ -64,7 +67,21 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
     for value in best_values
         print("Best value: " * string(value) * "\n")
     end
-    # 5. Analyse clingo output
+
+    print("Stage 5: Analyze subtrees\n") # 5. Analyse clingo output
+    best_n = 1 # which percentage of compressions do we want (will be rounded up)
+
+    for i in 1:length(trees)
+        node_assignments = best_values[i]
+        compression_stats = analyze_AST_singular(global_dicts[i], node_assignments)
+        best_compressions = select_compression(compression_stats, best_n)
+
+        println("best compressions:")
+        for b in best_compressions
+            println("compression ", b)
+        end
+    end
+
 end
 
 

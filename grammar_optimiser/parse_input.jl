@@ -3,10 +3,6 @@ import Pkg; Pkg.add("DataStructures"); Pkg.add("JSON")
 using JSON; using DataStructures;
 
 
-# Subtree_dict = (key: subtree ID, value: [subtree node IDs])
-# TODO: make this dictionary globally accessible, or at least accessible for the analyze_compressions.jl
-Subtree_dict = Dict{Int64, Vector}()
-    
 function parse_number(start_index, input)
     number = ""
     i = start_index
@@ -22,7 +18,7 @@ function parse_number(start_index, input)
     return number, i - 1
 end
 
-function parse(input, start_index=0)
+function parse_tree(input, global_dict=nothing, start_index=0)
     nodes, edges, output = "","",""
     parent, index = start_index, start_index
     # parent_stack keeps track of the parent node
@@ -32,6 +28,7 @@ function parse(input, start_index=0)
     if start_index != 0
         nodes = nodes * "comp_root($start_index)."
         nodes = nodes * "\ncomp_node($(start_index), $(input[1]))."
+        global_dict[start_index] = (comp_id = start_index, parent_id = -1, child_nr = -1, type = parse(Int64, string(input[1])), children = Vector{Int64}())
     else
         nodes = nodes * "node($(start_index), $(input[1]))."
     end
@@ -56,16 +53,16 @@ function parse(input, start_index=0)
             index += 1 # Nr of node / edge
             if start_index != 0
                 nodes = nodes * "\ncomp_node($index, $number)."
-                if haskey(Subtree_dict, start_index)
-                    append!(Subtree_dict[start_index], index)
-                else
-                    Subtree_dict[start_index] = [index]
-                end
             else
                 nodes = nodes * "\nnode($index, $number)."
             end
             child_nr = pop!(child_stack)
             edges = edges * "\nedge($parent, $index, $child_nr)."
+            if start_index != 0
+                global_dict[index] = (comp_id = start_index, parent_id = parent, child_nr = child_nr, type = 0, children = Vector{Int64}())
+                append!(global_dict[parent].children, index)
+            end
+            
             push!(child_stack, child_nr + 1)
         end
         i += 1
@@ -79,21 +76,23 @@ function parse(input, start_index=0)
 end
 
 function parse_json(json_path, output_path)
+    global_dict = Dict{Int64, NamedTuple{(:comp_id,:parent_id, :child_nr, :type, :children), <:Tuple{Int64,Int64,Int64,Int64,Vector}}}()
     # Read in the JSON file
     json_content = read(json_path, String)
     json_parsed = JSON.parse(json_content)
     ast = json_parsed["ast"]
     subtrees = json_parsed["subtrees"]
     # Parse the JSON file
-    index, output = parse(ast)
+    index, output = parse_tree(ast)
     for (i, subtree) in enumerate(subtrees)
-        index, temp_output = parse(subtree, index)
+        index, temp_output = parse_tree(subtree, global_dict, index)
         output = output * ("\n\n%Subtree $i\n") * temp_output
     end
     # Write the output to a file
     open(output_path, "w") do f
         write(f, output)
     end
+    return global_dict
 end
 
 function main(ARGS)

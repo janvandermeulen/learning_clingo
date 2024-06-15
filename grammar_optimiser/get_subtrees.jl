@@ -57,5 +57,6 @@ function combinations(n::Int)
 end
 
 function selection_criteria(tree::RuleNode, subtree::AbstractRuleNode)
-    return length(subtree) > 1
+    size = length(subtree)
+    return size > 1 && size < length(tree)
 end
