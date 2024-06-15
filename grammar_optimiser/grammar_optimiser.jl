@@ -44,7 +44,7 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
     # 3. Call clingo 
     model_location = Sys.iswindows() ? "grammar_optimiser/model.lp" : "model.lp"
     for i in 1:length(trees)
-        input_location = Sys.iswindows() ? "grammar_optimiser/clingo_inputs/model_input$(i).lp" : "clingo_inputs/model_input$(i).lp"
+        input_location = Sys.iswindows() ? "grammar_optimiser/model_input$(i).lp" : "clingo_inputs/model_input$(i).lp"
         output_location = Sys.iswindows() ? "grammar_optimiser/outputs/clingo_output$(i).json" : "outputs/clingo_output$(i).json"
         command = `clingo $(model_location) $(input_location) --outf=2`
         print("Running command: " * string(command) * "\n")

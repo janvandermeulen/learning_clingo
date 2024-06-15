@@ -7,27 +7,46 @@ using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 #### one compression ID: int
 # output: Herb tree
 
-function generate_tree_from_compression(parent, d, compression_id)
+function generate_tree_from_compression(parent, d, compression_id, grammar)
+    parent_type = d[parent].type
+    actual_children = grammar.childtypes[parent_type]
+    
     children::Vector{RuleNode} = []
+    current_child = 0
+
     for (key, value) in d
         if (value.parent_id == parent && value.comp_id == compression_id)
             child = key
-            child_tree = generate_tree_from_compression(child, d, compression_id)
+            child_tree = generate_tree_from_compression(child, d, compression_id, grammar)
+            child_nr = d[child].child_nr
+            while current_child < child_nr
+                push!(children, RuleNode(actual_children[current_child], []))
+                current_child = current_child + 1
+            end
+
             push!(children, child_tree)
+            current_child = current_child + 1
         end
     end
 
-    tree = RuleNode(d[parent].type, children)
+    # add remaining children; children that could be missing
+    current_child = current_child - 1
+    while current_child < length(actual_children)
+        push!(children, RuleNode(actual_children[current_child], []))
+        current_child = current_child + 1
+    end
+
+    tree = RuleNode(parent_type, children)
     return tree
 end
 
 # calls above function for an entire dict of compressions
-function generate_trees_from_compressions(global_dict, stats)
+function generate_trees_from_compressions(global_dict, stats, grammar)
 
     tree_stats_dict = Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}()
 
     for (comp_id, values) in stats
-        t = generate_tree_from_compression(comp_id, global_dict, comp_id)
+        t = generate_tree_from_compression(comp_id, global_dict, comp_id, grammar)
         tree_stats_dict[t] = values
     end
     
