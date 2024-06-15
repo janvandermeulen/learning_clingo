@@ -1,5 +1,6 @@
 import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification", "HerbSearch", "HerbInterpret"])
 include("../grammar_optimiser/grammar_optimiser.jl")
+# include("../HerbBenchmarks.jl/src/herb_benchmarks.jl")
 using DataFrames; using CSV; using Base;
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
@@ -43,45 +44,31 @@ function get_asts()
     return ast[:, 1]
 end
 
-function benchmark(settings)
-    (asts, g) = get_asts()
-    problem = settings["problem"]
-
+function benchmark(problem, asts, g, settings)
     start_time = time()
-    # iterator = BFSIterator(g, :Number, max_depth=settings["max_depth_iterator"])
-    g = @cfgrammar begin
-        Number = |(1:2)
-        Number = x
-        Number = Number + Number 
-        Number = Number * Number
-    end
-    problem = settings["problem"]
     iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
-    solution, flag = synth(problem, iterator)
+    solution_original, _ = synth(problem, iterator)
 
     end_time = time()
     time_taken_original = end_time - start_time
 
     g = grammar_optimiser(asts, g)
     start_time = time()
-    synth(problem, BFSIterator(updated_g, settings["output_type"], max_depth=settings["max_depth_iterator"]))
+    solution_extended, _ = synth(problem, BFSIterator(updated_g, settings["output_type"], max_depth=settings["max_depth_iterator"]))
     end_time = time()
     time_taken_extended = end_time - start_time
 
-    return (time_taken_original, time_taken_extended)
+    return Dict(
+        "time_taken_original" => time_taken_original, 
+        "time_taken_extended" => time_taken_extended,
+        "AST_size_original" => length(solution_original),
+        "AST_size_extended" => length(solution_extended)
+    )
 end
 
 settings = Dict(
-    "problem" => Problem([IOExample(Dict(:x => x), 2x+1) for x ∈ 1:5]),
-    "output_type" => :Number,
-    "max_depth_iterator" => 5
+    "output_type" => :String,
+    "max_depth_iterator" => 10
 )
-# print(benchmark(settings))
-g = @cfgrammar begin
-    Number = |(1:2)
-    Number = x
-    Number = Number + Number 
-    Number = Number * Number
-end
-string2rulenode("1+1", g)
-# create_solutions(g)
+
+format_string_grammars("results.csv")
