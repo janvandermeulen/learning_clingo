@@ -11,30 +11,31 @@ function generate_tree_from_compression(parent, d, compression_id, grammar)
     parent_type = d[parent].type
     actual_children = grammar.childtypes[parent_type]
     
-    children::Vector{RuleNode} = []
-    current_child = 0
+    children::Vector{AbstractRuleNode} = []
+    current_child = 1
 
-    for (key, value) in d
-        if (value.parent_id == parent && value.comp_id == compression_id)
-            child = key
-            child_tree = generate_tree_from_compression(child, d, compression_id, grammar)
-            child_nr = d[child].child_nr
-            while current_child < child_nr
-                push!(children, RuleNode(actual_children[current_child], []))
-                current_child = current_child + 1
-            end
-
-            push!(children, child_tree)
+    for child in d[parent].children
+        child_tree = generate_tree_from_compression(child, d, compression_id, grammar)
+        child_nr = d[child].child_nr
+        while current_child < child_nr + 1
+            hole = Hole(get_domain(grammar, grammar.bytype[actual_children[current_child]]))
+            push!(children, hole)
             current_child = current_child + 1
         end
+
+        push!(children, child_tree)
+        current_child = current_child + 1
     end
 
     # add remaining children; children that could be missing
-    current_child = current_child - 1
-    while current_child < length(actual_children)
-        push!(children, RuleNode(actual_children[current_child], []))
-        current_child = current_child + 1
-    end
+    if current_child > 1
+        current_child = current_child - 1
+        while current_child < length(actual_children)
+            hole = Hole(get_domain(grammar, grammar.bytype[actual_children[current_child]]))
+            push!(children, hole)
+            current_child = current_child + 1
+        end
+    end 
 
     tree = RuleNode(parent_type, children)
     return tree
@@ -93,3 +94,22 @@ end
 # new = extendGrammar(tree, g)
 
 # println(new)
+
+Subtree_dict = Dict{Int64, NamedTuple{(:comp_id, :parent_id, :child_nr, :type, :children), <:Tuple{Int64,Int64,Int64,Int64,Vector{Int64}}}}(
+    5 => (comp_id = 5, parent_id = -1, child_nr = -1, type = 5, children = Int64[]),
+    16 => (comp_id = 14, parent_id = 14, child_nr = 1, type = 1, children = Int64[]),
+    20 => (comp_id = 20, parent_id = -1, child_nr = -1, type = 5, children = [21, 22]),
+    8 => (comp_id = 8, parent_id = -1, child_nr = -1, type = 5, children = [10]),
+    17 => (comp_id = 17, parent_id = -1, child_nr = -1, type = 5, children = [18]),
+    22 => (comp_id = 20, parent_id = 20, child_nr = 1, type = 1, children = Int64[]),
+    11 => (comp_id = 11, parent_id = -1, child_nr = -1, type = 5, children = Int64[]),
+    14 => (comp_id = 14, parent_id = -1, child_nr = -1, type = 5, children = [16]),
+    21 => (comp_id = 20, parent_id = 20, child_nr = 0, type = 2, children = Int64[]),
+    10 => (comp_id = 8, parent_id = 8, child_nr = 1, type = 1, children = Int64[]),
+    18 => (comp_id = 17, parent_id = 17, child_nr = 0, type = 2, children = Int64[])
+)
+
+tree = generate_tree_from_compression(17, Subtree_dict, 17, g)
+println(tree)
+
+new = extendGrammar(tree, g)
