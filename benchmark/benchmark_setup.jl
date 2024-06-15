@@ -39,8 +39,10 @@ function string_2_rulenode(ast::String,debug::Bool=false) :: RuleNode
         return RuleNode(num)
     end
     # If the AST is not a single node, we need to parse the children 
-    println("Calling recursive method for children: " * ast[i + 2:length(ast)-1])
-    println("With rootnode: " * string(num))
+    if debug 
+        println("Calling recursive method for children: " * ast[i + 2:length(ast)-1])
+        println("With rootnode: " * string(num))
+    end 
     return RuleNode(num, parse_all_children(ast, 3, length(ast) - 1, debug))
 end
 
@@ -183,7 +185,7 @@ g = @cfgrammar begin
     Number = Number + Number 
     Number = Number * Number
 end
-tree = string_2_rulenode("5{5{5{2,2}4{1,4{2,2}}}3}", true)
+tree = string_2_rulenode("5{5{5{2,2}4{1,4{2,2}}}3}", false)
 println("Children of the tree are: "* string(tree.children))
 println("Tree is: " * string(tree))
 println(rulenode2expr(tree, g))
