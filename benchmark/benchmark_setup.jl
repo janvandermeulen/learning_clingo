@@ -1,6 +1,6 @@
 import Pkg;  
-Pkg.add("DataFrames"); Pkg.add("CSV"); Pkg.add(["HerbGrammar", "HerbSpecification", "HerbSearch", "HerbInterpret"]); 
-using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret; using DataFrames; using CSV;
+Pkg.add("DataFrames"); Pkg.add("CSV"); Pkg.add("HerbGrammar")
+using DataFrames; using CSV; using HerbGrammar;
 
 function create_input(csv_path:: String, debug=False) :: Vector{RuleNode}
     """
@@ -34,26 +34,27 @@ function string_2_rulenode(ast::String,debug::Bool=false) :: RuleNode
     # Result 
     - `rulenode::RuleNode`: the AST converted to RuleNode such that it can be used as input to the grammar_optimiser. 
     """
-    if length(ast) == 1
-        return RuleNode(parse(Int, ast))
-    end 
+    (num, i) = parse_integer(ast, 1, debug)
+    if is_terminal(ast, i)
+        return RuleNode(num)
+    end
     # If the AST is not a single node, we need to parse the children 
-    println("Calling recursive method for children: " * ast[3:length(ast)-1])
-    println("With rootnode: " * string(parse(Int, ast[1])))
-    return RuleNode(parse(Int, ast[1]), parse_all_children(ast, 3, length(ast) - 1, debug))
-    # return string_2_rulenode_rec(ast, 1, length(ast), debug)
+    println("Calling recursive method for children: " * ast[i + 2:length(ast)-1])
+    println("With rootnode: " * string(num))
+    return RuleNode(num, parse_all_children(ast, 3, length(ast) - 1, debug))
 end
 
 function parse_all_children(ast::String, start_index::Int, end_index::Int, debug::Bool) :: Vector{RuleNode}
-"""
-Given an index of a rule node, this function parses all it's children and returns them as a vector of RuleNodes.
-# Arguments
-- `ast::String`: AST to be converted to RuleNode.
-- `start_index::Int`: Index of the opening brace.
-- `end_index::Int`: Index of the closing brace.
-# Result
-- `children::Vector{RuleNode}`: Vector of RuleNodes.
-"""
+    """
+    Given an index of a rule node, this function parses all it's children and returns them as a vector of RuleNodes.
+    # Arguments
+    - `ast::String`: AST to be converted to RuleNode.
+    - `start_index::Int`: Index of the opening brace.
+    - `end_index::Int`: Index of the closing brace.
+    - `debug::Bool`: Optional, whether to print debug statements.
+    # Result
+    - `children::Vector{RuleNode}`: Vector of RuleNodes.
+    """
     children::Vector{RuleNode} = []
     i = start_index
     while i <= end_index
@@ -64,11 +65,12 @@ Given an index of a rule node, this function parses all it's children and return
             println("char is terminal: " * string(is_terminal(ast, i)))
         end
         if isdigit(char)
+            (num, i) = parse_integer(ast, i, debug)
             if is_terminal(ast, i)
                 if debug 
                     println("Adding terminal node: " * string(parse(Int, char)))
                 end
-                push!(children, RuleNode(parse(Int, char)))
+                push!(children, RuleNode(num))
             else
                 next_brace = find_closing_brace(ast, i + 2)
                 if debug
@@ -135,25 +137,55 @@ function find_closing_brace(ast::String, start_index::Int) :: Int
     return index
 end 
 
-# csv_path = CSV.read(joinpath(dirname(@__FILE__), "inputs", "ast.csv"), DataFrame)
-# create_input(csv_path, g)
+function parse_integer(ast::String, start_index::Int, debug::Bool):: Tuple{Int, Int}
+    """
+    Given an AST and the start_index of the integer, this function parses the integer and returns the index of the last digit.
+    # Arguments
+    - `ast::String`: AST to be converted to RuleNode.
+    - `start_index::Int`: Index of the opening brace.
+    - `debug::Bool`: whether to print debug statements.
+    # Result
+    - (Int, Int): Tuple of the parsed integer and the index of the last digit.
+    """
+    i = start_index
+    number = ""
+    while isdigit(ast[i])
+        number = number * string(ast[i])
+        i += 1
+    end
+    if debug
+        println("Parsed number: " * number) 
+    end
+    return (parse(Int, number), i - 1)
+end
 
+#=
+## A test on all inputs from the csv file
 g = @cfgrammar begin
     Number = |(1:2)
     Number = x
     Number = Number + Number 
     Number = Number * Number
 end
-
-
 trees = create_input(joinpath(dirname(@__FILE__), "inputs", "ast.csv"), true)
-# for tree in trees
-#     println("Tree is: " * string(tree))
-#     println("Children of the tree are: "* string(tree.children))
-#     println(rulenode2expr(tree, g))
-# end
-# Test
-# tree = string_2_rulenode("5{5{5{2,2}4{1,4{2,2}}}3}", true)
-# println("Children of the tree are: "* string(tree.children))
-# println("Tree is: " * string(tree))
-# println(rulenode2expr(tree, g))
+for tree in trees
+    println("Tree is: " * string(tree))
+    println("Children of the tree are: "* string(tree.children))
+    println(rulenode2expr(tree, g))
+end
+=#
+
+# A small test on the largest ast from the csv file
+#=
+g = @cfgrammar begin
+    Number = |(1:2)
+    Number = x
+    Number = Number + Number 
+    Number = Number * Number
+end
+tree = string_2_rulenode("5{5{5{2,2}4{1,4{2,2}}}3}", true)
+println("Children of the tree are: "* string(tree.children))
+println("Tree is: " * string(tree))
+println(rulenode2expr(tree, g))
+=#
+
