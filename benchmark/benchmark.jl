@@ -1,12 +1,13 @@
 import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification", "HerbInterpret"])
-include("../grammar_optimiser/grammar_optimiser.jl")
-include("../HerbBenchmarks.jl/src/data/SyGuS/PBE_SLIA_Track_2019/PBE_SLIA_Track_2019.jl")
 using DataFrames; using CSV; using Base;
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
-function benchmark(g, settings) 
-    #1. Get the ASTs of solved problems
-    asts = create_input(settings["input_path"])
+include("benchmark_setup.jl")
+include("../grammar_optimiser/grammar_optimiser.jl")
+include("../PBE_SLIA_Track_2019/grammars.jl")
+include("../PBE_SLIA_Track_2019/data.jl")
+
+function benchmark(g, asts, settings)
     #2. Extend the grammar
     g_extended = grammar_optimiser(asts, grammar)
     #3. Get the problem
@@ -30,4 +31,20 @@ function benchmark(g, settings)
     )
 end
 
-format_string_grammars("results.csv")
+function benchmark(g, settings) 
+    #1. Get the ASTs of solved problems
+    asts = create_input(settings["input_path"])
+
+    benchmark(g, asts, settings)
+end
+
+grammars = [name for name in names(Grammars, all=true, imported=false) if startswith(String(name), "grammar")]
+problems = [name for name in names(Problems, all=true, imported=false) if startswith(String(name), "problem")]
+
+for (x, y) in zip(grammars, problems)
+    grammar = getfield(Grammars, x)
+    problem = getfield(Problems, y)
+    
+    asts = [rand(RuleNode, grammar, 5) for i in 1:10]
+    
+end
