@@ -1,6 +1,7 @@
 # Import stack datastructure
 import Pkg; Pkg.add("DataStructures"); Pkg.add("JSON")
-using JSON; using DataStructures
+using JSON; using DataStructures;
+
 
 function parse_number(start_index, input)
     number = ""
@@ -94,7 +95,9 @@ function parse_json(json_path, output_path)
     return global_dict
 end
 
-# parse_json(ARGS[1], ARGS[2])
+function main(ARGS)
+    parse_json(ARGS[1], ARGS[2])
+end
 """
 Schema:
 Node(id, grammar_rule) e.g. Node(1, 1)

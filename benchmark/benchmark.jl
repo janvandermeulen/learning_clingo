@@ -1,36 +1,67 @@
-import Pkg; Pkg.add("CSV"); Pkg.add("DataFrames");
-using CSV; using DataFrames;
+import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification", "HerbSearch", "HerbInterpret"])
+include("../grammar_optimiser/grammar_optimiser.jl")
+include("benchmark_setup.jl")
+# include("../HerbBenchmarks.jl/src/herb_benchmarks.jl")
+using DataFrames; using CSV; using Base;
+using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
-g = @cfgrammar begin
-    Number = |(1:2)
-    Number = x
-    Number = Number + Number 
-    Number = Number * Number
+function benchmark(g, settings) 
+    #1. Get the ASTs of solved problems
+    asts = create_input(settings["input_path"])
+    #2. Extend the grammar
+    g_extended = grammar_optimiser(asts, grammar)
+    #3. Get the problem
+    problem = settings["problem"]
+    #4. Synthesise the solution using the original grammar
+    start_time = time()
+    iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
+    solution_original, _ = synth(problem, iterator)
+    end_time = time()
+    time_taken_original = end_time - start_time
+    #5. Synthesise the solution using the extended grammar
+    start_time = time()
+    iterator = BFSIterator(g_extended, settings["output_type"], max_depth=settings["max_depth_iterator"])
+    solution_extended, _ = synth(problem, iterator)
+    end_time = time()
+    return Dict(
+        "time_taken_original" => time_taken_original, 
+        "time_taken_extended" => end_time - start_time,
+        "AST_size_original" => length(solution_original),
+        "AST_size_extended" => length(solution_extended)
+    )
 end
 
-path_model = "../parser/parse_input.jl"
-function setup_benchmark()
-    trees = []
-    # Generate trees with the grammar
-    random_tree = rand(RuleNode, g, 5)
-    for i in 1:50
-        push!(trees, random_tree)
-    end
-    # Find all subtrees 
-    
-    # Write the trees and all subtrees to a file - TODO: change this to parse to json and have the right input
-    ast = CSV.read("inputs/ast.csv", DataFrame)
-    ast_input = ast[:, 1] # Get the input column from the dataframe
-    for (i, ast) in enumerate(ast_input)
-        path = "inputs/ast_input_$i.txt"
-        print("writing ast $i to file: " * ast * "\n")
-        # Casting to IOBuffer otherwise the "{" and "}" cause issues
-        open(path, "w") do file
-            write(file, IOBuffer(String(ast))) 
-        end
-    end
-    # Call clingo 
 
+#=
+function benchmark(settings)
+    (asts, g) = get_asts()
+    problem = settings["problem"]
+
+    start_time = time()
+    iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
+    solution_original, _ = synth(problem, iterator)
+
+    end_time = time()
+    time_taken_original = end_time - start_time
+
+    g = grammar_optimiser(asts, g)
+    start_time = time()
+    solution_extended, _ = synth(problem, BFSIterator(updated_g, settings["output_type"], max_depth=settings["max_depth_iterator"]))
+    end_time = time()
+    time_taken_extended = end_time - start_time
+
+    return Dict(
+        "time_taken_original" => time_taken_original, 
+        "time_taken_extended" => time_taken_extended,
+        "AST_size_original" => length(solution_original),
+        "AST_size_extended" => length(solution_extended)
+    )
 end
 
-setup_benchmark()
+settings = Dict(
+    "output_type" => :String,
+    "max_depth_iterator" => 10
+)
+
+format_string_grammars("results.csv")
+=#

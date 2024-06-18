@@ -1,6 +1,6 @@
 import Pkg; Pkg.add("JSON")
 using HerbSearch, HerbCore, HerbSpecification, HerbInterpret, HerbGrammar, JSON
-
+using Base
 function parse_subtrees_to_json(subtrees::Vector{Any}, tree::RuleNode, id::Int)
     modified_subtrees = []
     for i in 1:length(subtrees)
@@ -14,8 +14,8 @@ function parse_subtrees_to_json(subtrees::Vector{Any}, tree::RuleNode, id::Int)
     )
 
     json_string = JSON.json(result)
-
-    path = Sys.iswindows() ? "grammar_optimiser/inputs/parser_input$(id).json" : "inputs/parser_input$(id).json"
+    dir_path = dirname(@__FILE__)    
+    path = joinpath(dir_path, "inputs", "parser_input$(id)")
 
     open(path, "w") do file
         write(file, json_string)
