@@ -45,6 +45,29 @@ function generate_stats(d, compressed_AST)
     return c_info
 end
 
+function compare(rn₁, rn₂)::Bool
+    # println("comparing ", rn₁, " and ", rn₂)
+    if typeof(rn₁) != typeof(rn₂)
+        return false
+    end
+    if (rn₁ isa Hole) && (rn₂ isa Hole)
+        return true
+    end
+    if rn₁.ind == rn₂.ind
+        for (c₁, c₂) ∈ zip(rn₁.children, rn₂.children)
+            comparison = compare(c₁, c₂)
+            # comparison ≡ softfail && return softfail
+            if !comparison
+                return false
+            end
+        end
+        return true
+    else
+        # return rn₁.ind < rn₂.ind ? -1 : 1
+        return false
+    end
+end
+
 function getCompressionSize(d, C)
     s = Set()
     for (k,v) in d
@@ -79,6 +102,9 @@ c_ast = ["assign(2, x)", "assign(3, x)", "assign(5, x)", "assign(8, x)", "assign
 
 
 ###################### COMBINE COMPRESSION STATISTICS #############################
+
+Base.isequal(k1::RuleNode, k2::RuleNode) = compare(k1, k2) #k1.field1 == k2.field1 && k1.field2 == k2.field2
+# Base.hash(k::RuleNode, h::UInt) = hash((k.field1, k.field2), h)
 
 function zip_stats(stats::Vector{Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}})
     d = Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}()
@@ -153,10 +179,6 @@ function select_compressions(c, best_n)
     index = ceil.(Int, length(c) * best_n)
     c = c[begin:index]
 
-    println("selection is:")
-    for (k,v) in c
-        println(k, " ", v)
-    end
 
    return map(first, c)
 end
