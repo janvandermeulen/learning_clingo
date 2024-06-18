@@ -77,7 +77,7 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
 
         stats = generate_stats(global_dicts[i], node_assignments)
 
-        stats = generate_trees_from_compressions(global_dicts[i], stats)
+        stats = generate_trees_from_compressions(global_dicts[i], stats, grammar)
 
         push!(all_stats, stats)
     end
