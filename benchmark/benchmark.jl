@@ -9,7 +9,11 @@ function benchmark(g, settings)
     #1. Get the ASTs of solved problems
     asts = create_input(settings["input_path"])
     #2. Extend the grammar
-    g_extended = grammar_optimiser(asts, grammar)
+    g_extended = grammar_optimiser(asts, g)
+    #2a print the new grammar
+    print("PRINTING NEW GRAMMAR")
+    print(string(g_extended))
+    print("=================================")
     #3. Get the problem
     problem = settings["problem"]
     #4. Synthesise the solution using the original grammar
@@ -17,6 +21,7 @@ function benchmark(g, settings)
     iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
     solution_original, _ = synth(problem, iterator)
     end_time = time()
+
     time_taken_original = end_time - start_time
     #5. Synthesise the solution using the extended grammar
     start_time = time()
@@ -30,6 +35,22 @@ function benchmark(g, settings)
         "AST_size_extended" => length(solution_extended)
     )
 end
+  
+settings = Dict(
+    "output_type" => :Number,
+    "max_depth_iterator" => 5,
+    "input_path" => joinpath(dirname(@__FILE__), "inputs", "ast.csv"),
+    "problem" => Problem([IOExample(Dict(:x => x), 2x+1) for x ∈ 1:5])
+)
+g = @cfgrammar begin
+    Number = |(1:2)
+    Number = x
+    Number = Number + Number 
+    Number = Number * Number
+end
+
+result = benchmark(g, settings)
+print(string(result))
 
 
 #=

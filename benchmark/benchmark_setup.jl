@@ -2,7 +2,7 @@ import Pkg;
 Pkg.add("DataFrames"); Pkg.add("CSV"); Pkg.add("HerbGrammar")
 using DataFrames; using CSV; using HerbGrammar;
 
-function create_input(csv_path:: String, debug=False) :: Vector{RuleNode}
+function create_input(csv_path::String, debug::Bool=false) :: Vector{RuleNode}
     """
     # Arguments
     - `csv_path::String`: Path to the csv file containing the ASTs.
