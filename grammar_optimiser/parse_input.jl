@@ -59,7 +59,7 @@ function parse_tree(input, global_dict=nothing, start_index=0)
             child_nr = pop!(child_stack)
             edges = edges * "\nedge($parent, $index, $child_nr)."
             if start_index != 0
-                global_dict[index] = (comp_id = start_index, parent_id = parent, child_nr = child_nr, type = 0, children = Vector{Int64}())
+                global_dict[index] = (comp_id = start_index, parent_id = parent, child_nr = child_nr, type = parse(Int64, string(number)), children = Vector{Int64}())
                 append!(global_dict[parent].children, index)
             end
             
