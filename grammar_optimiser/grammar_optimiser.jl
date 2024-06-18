@@ -19,7 +19,7 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
     subtree_set = Vector{Any}()
     for tree in trees
         test = time()
-        (subtrees_root, other_subtrees) = select_subtrees(tree, g)
+        (subtrees_root, other_subtrees) = select_subtrees(tree, grammar)
         # print("Time for tree selection 1: " * string(time() - test) * "\n"); test = time()
         subtrees = vcat(subtrees_root, other_subtrees)
         # print("Time for concatenation 1: " * string(time() - test) * "\n"); test = time()
@@ -70,7 +70,7 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
     end
 
     print("Stage 5: Analyze subtrees\n") # 5. Analyse clingo output
-    best_n = 1 # which percentage of compressions do we want (will be rounded up)
+    best_n = 0.5 # which percentage of compressions do we want (will be rounded up)
 
     all_stats = Vector{Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}}()
 

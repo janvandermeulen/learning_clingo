@@ -152,7 +152,7 @@ end
 # c: a sorted and filtered list of compression IDs
 function select_compressions(c, best_n)
     # change here for the heuristics
-    case = 1
+    case = 2
 
     # sorting the dictionary
     # case 1: occurences
@@ -160,20 +160,23 @@ function select_compressions(c, best_n)
         println("sorting by #occurences...")
         c = sort(collect(c), by=x->x[2].occurences, rev=true) # decreasing order of value
 
-        for (k,v) in c
-            print("score ", v.occurences)
-            println(": ", k, " ", v)
-        end
+        # for (k,v) in c
+        #     print("score ", v.occurences)
+        #     println(": ", k, " ", v)
+        # end
     # case 2: occurences * size
     elseif  case ==2
         println("sorting by #occurences * tree_size...")
         c = sort(collect(c), by=x->(x[2].occurences * x[2].size), rev=true) # decreasing order of value
 
-        for (k,v) in c
-            print("score ", v.occurences * v.size)
-            println(": ", k, " ", v,)
-        end
+        # for (k,v) in c
+        #     print("score ", v.occurences * v.size)
+        #     println(": ", k, " ", v,)
+        # end
     end
+
+    # filter out compressions of size 1
+    filter!(x -> x[2].size != 1, c)
 
     # taking the best n percentage
     index = ceil.(Int, length(c) * best_n)
