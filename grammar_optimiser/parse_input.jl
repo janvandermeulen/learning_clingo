@@ -29,7 +29,7 @@ function parse_tree(input, global_dict=nothing, start_index=0)
     if start_index != 0
         nodes = nodes * "comp_root($start_index)."
         nodes = nodes * "\ncomp_node($(start_index), $(num))."
-        global_dict[start_index] = (comp_id = start_index, parent_id = -1, child_nr = -1, type = parse(Int64, string(input[1])), children = Vector{Int64}())
+        global_dict[start_index] = (comp_id = start_index, parent_id = -1, child_nr = -1, type = parse(Int64, string(num)), children = Vector{Int64}())
     else  
         nodes = nodes * "node($(start_index), $(num))."
     end
