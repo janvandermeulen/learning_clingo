@@ -12,7 +12,7 @@ function run_command(command)
     run(`$command`)
 end
 
-function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
+function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, subtree_selection_strategy::Int)
     dir_path = dirname(@__FILE__)     
     start_time = time()
     print("Stage 1: Select subtrees\n")     # 1a. Select subtrees 
@@ -85,7 +85,7 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar)
     end
 
     combined_stats = zip_stats(all_stats)
-    best_compressions = select_compressions(combined_stats, best_n)
+    best_compressions = select_compressions(subtree_selection_strategy, combined_stats, best_n)
 
     new_grammar = grammar
 

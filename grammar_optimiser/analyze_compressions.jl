@@ -150,9 +150,9 @@ end
 # best_n: a float in range [0,1], that specifies what proportion of the compressions will get selected
 # OUTPUT:
 # c: a sorted and filtered list of compression IDs
-function select_compressions(c, best_n)
+function select_compressions(case, c, best_n)
     # change here for the heuristics
-    case = 2
+    # case = 2
 
     # sorting the dictionary
     # case 1: occurences
@@ -177,7 +177,9 @@ function select_compressions(c, best_n)
 
     # filter out compressions of size 1
     filter!(x -> x[2].size != 1, c)
-
+    
+    # filter out compressions with less than 2 occurences
+    filter!(x -> x[2].occurences >= 2, c)
     # taking the best n percentage
     index = ceil.(Int, length(c) * best_n)
     c = c[begin:index]
