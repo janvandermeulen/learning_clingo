@@ -2,7 +2,8 @@ import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification", "HerbSearch", "HerbInte
 include("../grammar_optimiser/grammar_optimiser.jl")
 include("benchmark_setup.jl")
 # include("../HerbBenchmarks.jl/src/herb_benchmarks.jl")
-include("training_set.jl")
+include("problem_sets.jl")
+include("grammars.jl")
 using DataFrames; using CSV; using Base;
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
@@ -29,7 +30,7 @@ function benchmark(settings)
     start_time = time()
     for problem in settings["eval_problems"]
         iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
-        solution_original, _, iter_og_i = synth(problem, iterator)
+        solution_original, _, iter_og_i = synth(problem, iterator, max_enumerations = 20000)
         append!(iter_og, iter_og_i)
     end
     # iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
@@ -63,9 +64,9 @@ function benchmark(settings)
     )
 end
 
-function results_to_csv(results::Vector{Any})
+function results_to_csv(i::Int64, results::Vector{Any})
     df = DataFrame(results)
-    CSV.write("results.csv", df)
+    CSV.write("results_$i.csv", df)
 end
 
 function generate_eval_set(n_trees::Int, g, size::Int)::Vector{RuleNode}
@@ -79,36 +80,11 @@ function generate_eval_set(n_trees::Int, g, size::Int)::Vector{RuleNode}
     return eval_asts
 end
 
-# single_variable_grammar = @cfgrammar begin
-#     Number = |(1:2)
-#     Number = x
-#     Number = Number + Number 
-#     Number = Number - Number
-#     Number = Number * Number
-#     Number = Number / Number
-#     # Number = √Complex(Number)
-# end
-
-# dual_variable_grammar = @cfgrammar begin
-#     Number = |(1:2)
-#     Number = x
-#     Number = y
-#     Number = Number + Number 
-#     Number = Number - Number
-#     Number = Number * Number
-#     Number = Number / Number
-# end
-
-# g = dual_variable_grammar
 
 function experiment_1()
     # Grammar
-    g = @cfgrammar begin
-        Number = |(1:2)
-        Number = x
-        Number = Number + Number 
-        Number = Number * Number
-    end
+    g = single_arith_grammar
+
     # Generate evaluation set
     eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
     # Settings
@@ -118,36 +94,16 @@ function experiment_1()
         "learn_asts" => eval_asts,
         "grammar" => g,
         # The set of problems to test efficacy against
-        "eval_problems" =>  [Problem([IOExample(Dict(:x => x), 2x+1) for x ∈ 1:5]), 
-                             Problem([IOExample(Dict(:x => x), 3x+5) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 2+4x) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 5x+5) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 2x+2+2x+2) for x ∈ 1:5])],
+        "eval_problems" =>  single_arith,
         "grammar_extension_percentage" => 0.5::Float64,
         "subtree_selection_strategy" => 1::Int,) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
-    println(string(results))
 end
-
-function benchmark1()
-    # repeat experiment 1 10 times
-    results = []
-    for i in 1:10
-        push!(results, experiment_1())
-    end 
-    return results
-end
-# print(string(benchmark1()))
 
 function experiment_2()
     # Grammar
-    g = @cfgrammar begin
-        Number = |(1:2)
-        Number = x
-        Number = Number + Number 
-        Number = Number * Number
-    end
+    g = single_arith_grammar
     # Generate evaluation set
     eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
     # Settings
@@ -157,43 +113,30 @@ function experiment_2()
         "learn_asts" => eval_asts,
         "grammar" => g,
         # The set of problems to test efficacy against
-        "eval_problems" =>  [Problem([IOExample(Dict(:x => x), 2x+3+2x+3) for x ∈ 1:5]), 
-                             Problem([IOExample(Dict(:x => x), 2x+3+5x) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 2x+3+4x) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 5x+5) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 2x+2+2x+2) for x ∈ 1:5])],
+        "eval_problems" => single_arith,
         "grammar_extension_percentage" => 0.5::Float64,
         "subtree_selection_strategy" => 1::Int,) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
-    println(string(results))
 end
-function benchmark2()
-    # repeat experiment 2 10 times
-    results = []
-    for i in 1:10
-        push!(results, experiment_2())
-    end 
-    return results
+
+function all_benchmarks()
+
+    runs = 10
+
+    results1 = []
+    for _ in 1:runs
+        push!(results1, experiment_1())
+        # print(string(result))
+    end
+    print(results_to_csv(1, results1))
+
+    results2 = []
+    for I in 1:runs
+        push!(results2, experiment_2())
+        # print(string(result))
+    end
+    print(results_to_csv(2, results2))
 end
-result = benchmark2()
-print(string(result))
-print(results_to_csv(result))
-# print(string(benchmark2()))
-#= 
-A set of problems
-problems = []
-functions = []
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+1) for x ∈ 1:5]))
-push!(functions, "2x+1")
-push!(problems, Problem([IOExample(Dict(:x => x), 3x+5) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2+4x) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 5x+5) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+2+2x+2) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 4x+3+2x) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+3+2x) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+3+2x+3) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+3+2x+3+2x) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+3+2x+3+2x+3) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+3+2x+3+2x+3+2x) for x ∈ 1:5]))
-=#
+
+all_benchmarks()
