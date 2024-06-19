@@ -1,0 +1,60 @@
+Problem set:
+    "eval_problems" =>  [Problem([IOExample(Dict(:x => x), 2x+3+2x+3) for x ∈ 1:5]), 
+                            Problem([IOExample(Dict(:x => x), 2x+3+5x) for x ∈ 1:5]),
+                            Problem([IOExample(Dict(:x => x), 2x+3+4x) for x ∈ 1:5]), #3 And #4 duplicate
+                            Problem([IOExample(Dict(:x => x), 2x+3+4x) for x ∈ 1:5]),
+                            Problem([IOExample(Dict(:x => x), 2x+2+2x+2) for x ∈ 1:5])],
+Any[Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 13.34273910522461, "time_taken_extended" => 14.877504110336304, "iter_ext" => Any[418, 3421, 3421, 35282, 145]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 11.874969959259033, "time_taken_extended" => 19.224492073059082, "iter_ext" => Any[1129, 4087, 4087, 44173, 339]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 12.164685010910034, "time_taken_extended" => 129.39908504486084, "iter_ext" => Any[6564, 69211, 69211, 101281, 818]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 11.889597177505493, "time_taken_extended" => 4.04018497467041, "iter_ext" => Any[489, 5934, 5934, 1286, 96]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 11.91937780380249, "time_taken_extended" => 6.340080976486206, "iter_ext" => Any[1529, 669, 669, 13484, 644]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 12.051676988601685, "time_taken_extended" => 7.094682931900024, "iter_ext" => Any[631, 7012, 7012, 652, 97]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 12.171634197235107, "time_taken_extended" => 5.225153923034668, "iter_ext" => Any[999, 1521, 1521, 10354, 79]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 11.83722710609436, "time_taken_extended" => 6.815192937850952, "iter_ext" => Any[2423, 1009, 1009, 15454, 740]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 12.104375123977661, "time_taken_extended" => 9.497169971466064, "iter_ext" => Any[1900, 4488, 4488, 12378, 659]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 12.155561208724976, "time_taken_extended" => 7.7424750328063965, "iter_ext" => Any[1445, 801, 801, 17990, 338])],
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 13.126134872436523, "time_taken_extended" => 1.8572120666503906, "iter_ext" => Any[1202, 739, 739, 5654, 59]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 11.790290832519531, "time_taken_extended" => 1.5164210796356201, "iter_ext" => Any[1819, 1209, 1209, 1250, 234]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 11.738487005233765, "time_taken_extended" => 0.4919278621673584, "iter_ext" => Any[910, 460, 460, 553, 75]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 11.940680980682373, "time_taken_extended" => 59.54055404663086, "iter_ext" => Any[5074, 51936, 51936, 33916, 482]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 11.782153844833374, "time_taken_extended" => 1.2421259880065918, "iter_ext" => Any[699, 738, 738, 2099, 134]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 11.799185037612915, "time_taken_extended" => 1.575376033782959, "iter_ext" => Any[560, 1943, 1943, 3727, 74]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 11.974782943725586, "time_taken_extended" => 5.442934036254883, "iter_ext" => Any[919, 3041, 3041, 9548, 79]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 12.000231981277466, "time_taken_extended" => 21.720514059066772, "iter_ext" => Any[5351, 8723, 8723, 31598, 1649]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 12.325090885162354, "time_taken_extended" => 125.88396000862122, "iter_ext" => Any[928, 4055, 4055, 170113, 132]), 
+Dict{String, Any}("iter_original" => Any[3684, 5135, 5135, 6067, 243], "time_taken_original" => 12.989469051361084, "time_taken_extended" => 2.3345749378204346, "iter_ext" => Any[2740, 542, 542, 2538, 210])
+g_extended for 19:
+1: Number = 1
+2: Number = 2
+3: Number = x
+4: Number = Number + Number
+5: Number = Number * Number
+6: Number = 2 + Number
+7: Number = 1 + 1
+8: Number = 2Number
+9: Number = 2x
+10: Number = x * x
+11: Number = Number * 2
+12: Number = 1 * 2
+13: Number = 2 + 2
+14: Number = 1Number
+15: Number = Number * 1
+16: Number = 2 + 1
+g_extended for 20:
+1: Number = 1
+2: Number = 2
+3: Number = x
+4: Number = Number + Number
+5: Number = Number * Number
+6: Number = 1 + 1
+7: Number = 1 + x
+8: Number = Number + 1
+9: Number = x + Number
+10: Number = Number + 2
+11: Number = Number * 1
+12: Number = 1 + Number
+13: Number = 2 + 2
+14: Number = x * 2
+15: Number = 2 + 1
+16: Number = x * Number
