@@ -37,6 +37,14 @@ function generate_tree_from_compression(parent, d, compression_id, grammar)
         end
     end 
 
+    # if there are only holes, make a vector of holes
+    if length(d[parent].children) == 0 && length(actual_children) > 0
+        for i in (1,length(actual_children))
+            hole = Hole(get_domain(grammar, grammar.bytype[actual_children[i]]))
+            push!(children, hole)
+        end
+    end
+
     tree = RuleNode(parent_type, children)
     return tree
 end
@@ -84,32 +92,32 @@ end
 # tree = generate_tree_from_compression(2, Subtree_dict, 2)
 # println(tree)
 
-g = @cfgrammar begin
-    Number = |(1:2)
-    Number = x
-    Number = Number + Number 
-    Number = Number * Number
-end
+# g = @cfgrammar begin
+#     Number = |(1:2)
+#     Number = x
+#     Number = Number + Number 
+#     Number = Number * Number
+# end
 
 # new = extendGrammar(tree, g)
 
 # println(new)
 
-Subtree_dict = Dict{Int64, NamedTuple{(:comp_id, :parent_id, :child_nr, :type, :children), <:Tuple{Int64,Int64,Int64,Int64,Vector{Int64}}}}(
-    5 => (comp_id = 5, parent_id = -1, child_nr = -1, type = 5, children = Int64[]),
-    16 => (comp_id = 14, parent_id = 14, child_nr = 1, type = 1, children = Int64[]),
-    20 => (comp_id = 20, parent_id = -1, child_nr = -1, type = 5, children = [21, 22]),
-    8 => (comp_id = 8, parent_id = -1, child_nr = -1, type = 5, children = [10]),
-    17 => (comp_id = 17, parent_id = -1, child_nr = -1, type = 5, children = [18]),
-    22 => (comp_id = 20, parent_id = 20, child_nr = 1, type = 1, children = Int64[]),
-    11 => (comp_id = 11, parent_id = -1, child_nr = -1, type = 5, children = Int64[]),
-    14 => (comp_id = 14, parent_id = -1, child_nr = -1, type = 5, children = [16]),
-    21 => (comp_id = 20, parent_id = 20, child_nr = 0, type = 2, children = Int64[]),
-    10 => (comp_id = 8, parent_id = 8, child_nr = 1, type = 1, children = Int64[]),
-    18 => (comp_id = 17, parent_id = 17, child_nr = 0, type = 2, children = Int64[])
-)
+# Subtree_dict = Dict{Int64, NamedTuple{(:comp_id, :parent_id, :child_nr, :type, :children), <:Tuple{Int64,Int64,Int64,Int64,Vector{Int64}}}}(
+#     5 => (comp_id = 5, parent_id = -1, child_nr = -1, type = 5, children = Int64[]),
+#     16 => (comp_id = 14, parent_id = 14, child_nr = 1, type = 1, children = Int64[]),
+#     20 => (comp_id = 20, parent_id = -1, child_nr = -1, type = 5, children = [21, 22]),
+#     8 => (comp_id = 8, parent_id = -1, child_nr = -1, type = 5, children = [10]),
+#     17 => (comp_id = 17, parent_id = -1, child_nr = -1, type = 5, children = [18]),
+#     22 => (comp_id = 20, parent_id = 20, child_nr = 1, type = 1, children = Int64[]),
+#     11 => (comp_id = 11, parent_id = -1, child_nr = -1, type = 5, children = Int64[]),
+#     14 => (comp_id = 14, parent_id = -1, child_nr = -1, type = 5, children = [16]),
+#     21 => (comp_id = 20, parent_id = 20, child_nr = 0, type = 2, children = Int64[]),
+#     10 => (comp_id = 8, parent_id = 8, child_nr = 1, type = 1, children = Int64[]),
+#     18 => (comp_id = 17, parent_id = 17, child_nr = 0, type = 2, children = Int64[])
+# )
 
-tree = generate_tree_from_compression(17, Subtree_dict, 17, g)
-println(tree)
+# tree = generate_tree_from_compression(17, Subtree_dict, 17, g)
+# println(tree)
 
-new = extendGrammar(tree, g)
+# new = extendGrammar(tree, g)
