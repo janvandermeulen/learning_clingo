@@ -2,6 +2,7 @@ import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification", "HerbSearch", "HerbInte
 include("../grammar_optimiser/grammar_optimiser.jl")
 include("benchmark_setup.jl")
 # include("../HerbBenchmarks.jl/src/herb_benchmarks.jl")
+include("training_set.jl")
 using DataFrames; using CSV; using Base;
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
@@ -34,7 +35,7 @@ function benchmark(g, settings)
     start_time = time()
     for problem in settings["problem_set"]
         iterator = BFSIterator(original_g, settings["output_type"], max_depth=settings["max_depth_iterator"])
-        solution_original, _, iter_og_i = synth(problem, iterator)
+        solution_original, _, iter_og_i = synth(problem, iterator, max_enumerations = 20000)
         append!(iter_og, iter_og_i)
     end
     # iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
@@ -55,7 +56,7 @@ function benchmark(g, settings)
     # solution_extended, _ = synth(problem, iterator)
     for problem in settings["problem_set"]
         iterator = BFSIterator(g_extended, settings["output_type"], max_depth=settings["max_depth_iterator"])
-        solution_extended, _, iter_ext_i = synth(problem, iterator)
+        solution_extended, _, iter_ext_i = synth(problem, iterator, max_enumerations = 20000)
         append!(iter_ext, iter_ext_i)
     end
     end_time = time()
@@ -74,21 +75,32 @@ settings = Dict(
     "max_depth_iterator" => 5,
     "input_path" => joinpath(dirname(@__FILE__), "inputs", "ast.csv"),
     # The set of problems to test efficacy against
-    "problem_set" => [Problem([IOExample(Dict(:x => x), 2x+1) for x ∈ 1:5]), 
-                  Problem([IOExample(Dict(:x => x), 3x+5) for x ∈ 1:5]),
-                  Problem([IOExample(Dict(:x => x), 2+4x) for x ∈ 1:5]),
-                  Problem([IOExample(Dict(:x => x), 5x+5) for x ∈ 1:5]),
-                  Problem([IOExample(Dict(:x => x), 2x+2+2x+2) for x ∈ 1:5])],
-    # "problem_set" => [Problem([IOExample(Dict(:x => x), 2x+3+2x+3+2x+3+2x) for x ∈ 1:5])]
+    "problem_set" => dual_variable_arithmetic,
     "n_random_asts" => 20
 )
 
-g = @cfgrammar begin
+single_variable_grammar = @cfgrammar begin
     Number = |(1:2)
     Number = x
     Number = Number + Number 
+    Number = Number - Number
     Number = Number * Number
+    Number = Number / Number
+    # Number = √Complex(Number)
 end
+
+dual_variable_grammar = @cfgrammar begin
+    Number = |(1:2)
+    Number = x
+    Number = y
+    Number = Number + Number 
+    Number = Number - Number
+    Number = Number * Number
+    Number = Number / Number
+end
+
+g = dual_variable_grammar
+
 
 result = benchmark(g, settings)
 print(string(result))
