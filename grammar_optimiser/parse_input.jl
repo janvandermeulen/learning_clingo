@@ -25,15 +25,16 @@ function parse_tree(input, global_dict=nothing, start_index=0)
     # child_stack keeps track of the last child number of the last depth
     parent_stack, child_stack = Stack{Int64}(), Stack{Int64}() 
     # Initialize the root
+    (num, i) = parse_number(1, input)
     if start_index != 0
         nodes = nodes * "comp_root($start_index)."
-        nodes = nodes * "\ncomp_node($(start_index), $(input[1]))."
-        global_dict[start_index] = (comp_id = start_index, parent_id = -1, child_nr = -1, type = parse(Int64, string(input[1])), children = Vector{Int64}())
-    else
-        nodes = nodes * "node($(start_index), $(input[1]))."
+        nodes = nodes * "\ncomp_node($(start_index), $(num))."
+        global_dict[start_index] = (comp_id = start_index, parent_id = -1, child_nr = -1, type = parse(Int64, string(num)), children = Vector{Int64}())
+    else  
+        nodes = nodes * "node($(start_index), $(num))."
     end
     # Iterate over the input string
-    i = 2
+    i = i + 1
     while i <= length(input) - 1
         char = input[i]
         if char == '{'
