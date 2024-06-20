@@ -49,13 +49,14 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
         input_location = joinpath(dir_path, "clingo_inputs", "model_input$(i).lp")
         output_location = joinpath(dir_path, "outputs", "clingo_output$(i).json")
         command = `clingo $(model_location) $(input_location) --outf=2`
-        print("Running command: " * string(command) * "\n")
+        # print("Running command: " * string(command) * "\n")
+        print(i, ", ")
         try 
             open(output_location, "w") do output_file
                 run(pipeline(command, output_file))
             end 
         catch e
-            print("Error: " * string(e) * "\n")
+            # print("Error: " * string(e) * "\n")
         end
     end
     print("Time for stage 3 : " * string(time() - start_time) * "\n"); start_time = time()
@@ -65,9 +66,9 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
         input_location = joinpath(dir_path, "outputs", "clingo_output$(i).json")
         push!(best_values, read_json(input_location))
     end
-    for value in best_values
-        print("Best value: " * string(value) * "\n")
-    end
+    # for value in best_values
+    #     print("Best value: " * string(value) * "\n")
+    # end
 
     print("Stage 5: Analyze subtrees\n") # 5. Analyse clingo output
 
@@ -88,9 +89,9 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
 
     new_grammar = grammar
 
-    println("best compressions:")
+    # println("best compressions:")
     for b in best_compressions
-        println(b)
+        # println(b)
         new_grammar = extendGrammar(b, new_grammar)
     end
 

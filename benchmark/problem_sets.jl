@@ -145,7 +145,12 @@ single_arith = [
     Problem([IOExample(Dict(:x => x), 2x^3 - x^2 + 4x - 3) for x ∈ 1:5]),
     Problem([IOExample(Dict(:x => x), x^3 + 3x^2 - 2x + 4) for x ∈ 1:5]),
     Problem([IOExample(Dict(:x => x), 3x^3 - 2x^2 + 4x - 1) for x ∈ 1:5]),
-    Problem([IOExample(Dict(:x => x), 2x^3 - 3x^2 + 4x - 5) for x ∈ 1:5])
+    Problem([IOExample(Dict(:x => x), 2x^3 - 3x^2 - 5) for x ∈ 1:5]),
+    Problem([IOExample(Dict(:x => x), x + x^2 + 4) for x ∈ 1:5]),
+    Problem([IOExample(Dict(:x => x), 2x - x^2 - 3) for x ∈ 1:5]),
+    Problem([IOExample(Dict(:x => x), x^3 - x^2 - x) for x ∈ 1:5]),
+    Problem([IOExample(Dict(:x => x), x - 2x^2 + 3) for x ∈ 1:5]),
+    Problem([IOExample(Dict(:x => x), 2x^2 - 3x) for x ∈ 1:5])
 ]
 
 dual_bool_arith = [

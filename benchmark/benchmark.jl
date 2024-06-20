@@ -19,7 +19,7 @@ function benchmark(settings)
     println("STEP 1: RUNNING TRAINING WITH OLD GRAMMAR")
 
     for problem in settings["training_set"]
-        iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
+        iterator = BFSIterator(g, settings["output_type"], max_depth=3)
         solution_original, _, iter_og_i = synth(problem, iterator, max_enumerations = 75000)
         push!(asts, solution_original)
     end
@@ -95,7 +95,7 @@ function generate_eval_set(n_trees::Int, g, size::Int)::Vector{RuleNode}
 end
 
 function split_problem_set(input::Vector, split::Float64 = 0.75)
-    input = shuffle(input)
+    input = shuffle(input)[begin:100]
 
     halfway_point = trunc(Int64, length(input)*split)
     training_set = input[begin:halfway_point]
@@ -123,8 +123,8 @@ function experiment_1()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.55::Float64,
-        "subtree_selection_strategy" => 1::Int,) # 1 is occurences and # 2 is occurences * size 
+        "best_n" => 0.5::Float64,
+        "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
 end
@@ -145,8 +145,30 @@ function experiment_2()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.85::Float64,
-        "subtree_selection_strategy" => 1::Int,) # 1 is occurences and # 2 is occurences * size 
+        "best_n" => 0.75::Float64,
+        "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
+    results = benchmark(settings)
+    return results
+end
+
+function experiment_3()
+    # Grammar
+    g = single_arith_grammar
+    
+    # Generate evaluation set
+    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+    training_set, testing_set = split_problem_set(single_arith, 0.8)
+
+    # Settings
+    settings = Dict(
+        "output_type" => :Number,
+        "max_depth_iterator" => 5,
+        "grammar" => g,
+        # The set of problems to test efficacy against
+        "training_set" => training_set,
+        "testing_set" => testing_set,
+        "best_n" => 0.95::Float64,
+        "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
 end
@@ -157,29 +179,62 @@ function all_benchmarks()
 
     improvements1 = []
     results1 = []
-    for _ in 1:runs
+    start_time = time()
+    for i in 1:runs
+        println("experiment ", 1 ," iteration ", i)
         push!(results1, experiment_1())
-        println(typeof(results1))
+        # println(typeof(results1))
         push!(improvements1, results1[end]["iter_original"] - results1[end]["iter_ext"])
         # print(string(results1))
     end
-    print(results_to_csv(1, results1))
+    end_time = time()
+    println(results_to_csv(1, results1))
+
+    println("experiment 1 done: ", end_time-start_time)
+    println("Improvements exp 1: ")
+    println(improvements1)
+    println("-----------------------------------------------------------------------------")
 
     improvements2 = []
     results2 = []
-    for _ in 1:runs
+    start_time = time()
+    for i in 1:runs
+        println("experiment ", 2 ," iteration ", i)
+
         push!(results2, experiment_2())
         push!(improvements2, results2[end]["iter_original"] - results2[end]["iter_ext"])
         # print(string(result))
     end
+    end_time = time()
     print(results_to_csv(2, results2))
 
-
-    println("-----------------------------------------------------------------------------")
-    println("Improvements exp 1: ")
-    println(improvements1)
+    println("experiment 2 done: ", end_time-start_time)
     println("improvements exp 2: ")
     println(improvements2)
+    println("-----------------------------------------------------------------------------")
+
+    improvements3 = []
+    results3 = []
+    start_time = time()
+    for i in 1:runs
+        println("experiment ", 3 ," iteration ", i)
+
+        push!(results3, experiment_3())
+        push!(improvements3, results3[end]["iter_original"] - results3[end]["iter_ext"])
+        # print(string(result))
+    end
+    end_time = time()
+    print(results_to_csv(3, results3))
+
+    println("experiment 3 done: ", end_time-start_time)
+    println("improvements exp 3: ")
+    println(improvements3)
+    println("-----------------------------------------------------------------------------")
+
+    println("all improvements:")
+    println(improvements1)
+    println(improvements2)
+    println(improvements3)
 end
 
 all_benchmarks()
