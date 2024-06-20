@@ -53,6 +53,9 @@ function compare(rn₁, rn₂)::Bool
     if (rn₁ isa Hole) && (rn₂ isa Hole)
         return true
     end
+    if !(rn₁ isa RuleNode) || !(rn₂ isa RuleNode)
+        return false
+    end
     if rn₁.ind == rn₂.ind
         for (c₁, c₂) ∈ zip(rn₁.children, rn₂.children)
             comparison = compare(c₁, c₂)

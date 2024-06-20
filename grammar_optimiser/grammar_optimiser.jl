@@ -12,7 +12,7 @@ function run_command(command)
     run(`$command`)
 end
 
-function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, subtree_selection_strategy::Int)
+function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, subtree_selection_strategy::Int, best_n::Float64)
     dir_path = dirname(@__FILE__)     
     start_time = time()
     print("Stage 1: Select subtrees\n")     # 1a. Select subtrees 
@@ -70,7 +70,6 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
     end
 
     print("Stage 5: Analyze subtrees\n") # 5. Analyse clingo output
-    best_n = 0.5 # which percentage of compressions do we want (will be rounded up)
 
     all_stats = Vector{Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}}()
 
