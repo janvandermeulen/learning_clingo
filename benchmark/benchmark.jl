@@ -78,6 +78,70 @@ function benchmark(settings)
     )
 end
 
+function benchmark_herb(settings) 
+    #0. Backup original grammar
+    g = settings["grammar"]
+    problem = settings["problem"]
+    original_g = deepcopy(g)
+    asts::Vector{RuleNode} = []
+    # asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+
+    #1. Synthesise the train set using the original grammar
+    println("=================================")
+    println("STEP 1: RUNNING TRAINING WITH OLD GRAMMAR")
+
+    for i in 1:10
+        push!(asts, rand(RuleNode, g, settings["max_depth"]))
+    end
+
+    #2. Extend the grammar
+    println("=================================")
+    println("STEP 2: COMPRESSING FOUND SOLUTIONS")
+    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"], settings["best_n"])
+    println("PRINTING NEW GRAMMAR")
+    println(string(g_extended))
+
+
+    #3. Synthesise the test set using the original grammar
+    println("=================================")
+    println("RUNNING TESTING WITH OLD GRAMMAR")
+
+    iter_og = []
+
+    start_time = time()
+
+    iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
+    _, _, iter_og_i = synth(problem, iterator, max_enumerations = 75000)
+    append!(iter_og, iter_og_i)
+
+    end_time = time()
+
+    time_taken_original = end_time - start_time
+
+    #4. Synthesise the test set using the new grammar
+    println("=================================")
+    println("RUNNING TESTING WITH NEW GRAMMAR")
+
+    iter_ext = []
+    start_time = time()
+
+    iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
+    _, _, iter_og_i = synth(problem, iterator, max_enumerations = 75000)
+    append!(iter_og, iter_og_i)
+
+    end_time = time()
+
+    return Dict(
+        "time_taken_original" => time_taken_original, 
+        "time_taken_extended" => end_time - start_time,
+        "iter_original" => iter_og,
+        "iter_ext" => iter_ext,
+        "grammar_extended" => g_extended,
+        # "AST_size_original" => length(solution_original),
+        # "AST_size_extended" => length(solution_extended)
+    )
+end
+
 function results_to_csv(i::Int64, results::Vector{Any})
     df = DataFrame(results)
     CSV.write("results_$i.csv", df)
@@ -149,6 +213,23 @@ function experiment_2()
         "subtree_selection_strategy" => 1::Int,) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
+end
+
+function herb_experiment()
+    grammars = [name for name in names(Grammars, all=true, imported=false) if startswith(String(name), "grammar")]
+    problems = [name for name in names(Problems, all=true, imported=false) if startswith(String(name), "problem")]
+
+    for (grammar, problem) in zip(grammars, problems)
+        settings = Dict(
+        "output_type" => :Number,
+        "max_depth_iterator" => 5,
+        "grammar" => grammar,
+        # The set of problems to test efficacy against
+        "problem" => problem,
+        "best_n" => 0.85::Float64,
+        "subtree_selection_strategy" => 1::Int,) # 1 is occurences and # 2 is occurences * size
+        results = benchmark_herb(settings)
+    end
 end
 
 function all_benchmarks()
