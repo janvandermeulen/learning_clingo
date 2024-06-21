@@ -1,4 +1,4 @@
-import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification", "HerbSearch", "HerbInterpret"])
+import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification", "HerbInterpret"])
 include("../grammar_optimiser/grammar_optimiser.jl")
 include("benchmark_setup.jl")
 # include("../HerbBenchmarks.jl/src/herb_benchmarks.jl")
@@ -222,7 +222,10 @@ function herb_experiment()
     grammars = [name for name in names(Grammars, all=true, imported=false) if startswith(String(name), "grammar")]
     problems = [name for name in names(Problems, all=true, imported=false) if startswith(String(name), "problem")]
 
-    for (grammar, problem) in zip(grammars, problems)
+    for (x, y) in zip(grammars, problems)
+        grammar = getfield(Grammars, x)
+        problem = getfield(Problems, y)
+
         settings = Dict(
         "output_type" => :Number,
         "max_depth_iterator" => 5,
@@ -230,8 +233,10 @@ function herb_experiment()
         # The set of problems to test efficacy against
         "problem" => problem,
         "best_n" => 0.85::Float64,
+        "max_depth" => 2::Int,
         "subtree_selection_strategy" => 1::Int,) # 1 is occurences and # 2 is occurences * size
         results = benchmark_herb(settings)
+        print(results)
     end
 end
 
@@ -266,4 +271,5 @@ function all_benchmarks()
     println(improvements2)
 end
 
-all_benchmarks()
+# all_benchmarks()
+herb_experiment()
