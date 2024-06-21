@@ -4,6 +4,9 @@ include("benchmark_setup.jl")
 # include("../HerbBenchmarks.jl/src/herb_benchmarks.jl")
 include("problem_sets.jl")
 include("grammars.jl")
+include("../PBE_SLIA_Track_2019/string_functions.jl")
+include("../PBE_SLIA_Track_2019/grammars.jl")
+include("../PBE_SLIA_Track_2019/data.jl")
 using DataFrames; using CSV; using Base; using Shuffle;
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
