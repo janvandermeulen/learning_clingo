@@ -1,57 +1,75 @@
-import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification", "HerbSearch", "HerbInterpret"])
+import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification","HerbSearch", "HerbInterpret"])
 include("../grammar_optimiser/grammar_optimiser.jl")
 include("benchmark_setup.jl")
 # include("../HerbBenchmarks.jl/src/herb_benchmarks.jl")
-include("training_set.jl")
-using DataFrames; using CSV; using Base;
+include("problem_sets.jl")
+include("grammars.jl")
+include("../PBE_SLIA_Track_2019/string_functions.jl")
+include("../PBE_SLIA_Track_2019/grammars.jl")
+include("../PBE_SLIA_Track_2019/data.jl")
+using DataFrames; using CSV; using Base; using Shuffle; using DelimitedFiles;
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
 function benchmark(settings) 
-    #1. Get the ASTs of solved problems
+    #0. Backup original grammar
     g = settings["grammar"]
     original_g = deepcopy(g)
-    asts::Vector{RuleNode} = settings["learn_asts"]
+    asts::Vector{RuleNode} = []
+    # asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+
+    #1. Synthesise the train set using the original grammar
+    println("=================================")
+    println("STEP 1: RUNNING TRAINING WITH OLD GRAMMAR")
+
+    for problem in settings["training_set"]
+        iterator = BFSIterator(g, settings["output_type"], max_depth=3)
+        solution_original, _, iter_og_i = synth(problem, iterator, max_enumerations = 75000)
+        push!(asts, solution_original)
+    end
+
 
     #2. Extend the grammar
-    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"])
-    #2a print the new grammar
+    println("=================================")
+    println("STEP 2: COMPRESSING FOUND SOLUTIONS")
+    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"], settings["best_n"])
     println("PRINTING NEW GRAMMAR")
     println(string(g_extended))
-    println("=================================")
-    #3. Get the problem
-    # problem = settings["problem"]
-    #4. Synthesise the solution using the original grammar
 
-    println("RUNNING WITH OLD GRAMMAR...")
+
+    #3. Synthesise the test set using the original grammar
+    println("=================================")
+    println("RUNNING TESTING WITH OLD GRAMMAR")
 
     iter_og = []
 
     start_time = time()
-    for problem in settings["eval_problems"]
+    for problem in settings["testing_set"]
         iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
-        solution_original, _, iter_og_i = synth(problem, iterator)
+        solution_original, _, iter_og_i = synth(problem, iterator, max_enumerations = 75000)
+        # push!(asts, solution_original)
         append!(iter_og, iter_og_i)
     end
-    # iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
-    # solution_original, _ = synth(problem, iterator)
+
     end_time = time()
 
     time_taken_original = end_time - start_time
 
+    #4. Synthesise the test set using the new grammar
     println("=================================")
-    println("RUNNING WITH NEW GRAMMAR")
+    println("RUNNING TESTING WITH NEW GRAMMAR")
 
     iter_ext = []
-    #5. Synthesise the solution using the extended grammar
     start_time = time()
+
     # iterator = BFSIterator(g_extended, settings["output_type"], max_depth=settings["max_depth_iterator"])
     # solution_extended, _ = synth(problem, iterator)
-    for problem in settings["eval_problems"]
+    for problem in settings["testing_set"]
         iterator = BFSIterator(g_extended, settings["output_type"], max_depth=settings["max_depth_iterator"])
-        solution_extended, _, iter_ext_i = synth(problem, iterator, max_enumerations = 20000)
+        solution_extended, _, iter_ext_i = synth(problem, iterator, max_enumerations = 75000)
         append!(iter_ext, iter_ext_i)
     end
     end_time = time()
+
     return Dict(
         "time_taken_original" => time_taken_original, 
         "time_taken_extended" => end_time - start_time,
@@ -63,9 +81,73 @@ function benchmark(settings)
     )
 end
 
-function results_to_csv(results::Vector{Any})
+function benchmark_herb(settings) 
+    #0. Backup original grammar
+    g = settings["grammar"]
+    problem = settings["problem"]
+    original_g = deepcopy(g)
+    asts::Vector{RuleNode} = []
+    # asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+
+    #1. Synthesise the train set using the original grammar
+    println("=================================")
+    println("STEP 1: RUNNING TRAINING WITH OLD GRAMMAR")
+
+    for i in 1:10
+        push!(asts, rand(RuleNode, g, settings["max_depth"]))
+    end
+
+    #2. Extend the grammar
+    println("=================================")
+    println("STEP 2: COMPRESSING FOUND SOLUTIONS")
+    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"], settings["best_n"])
+    println("PRINTING NEW GRAMMAR")
+    println(string(g_extended))
+
+
+    #3. Synthesise the test set using the original grammar
+    println("=================================")
+    println("RUNNING TESTING WITH OLD GRAMMAR")
+
+    iter_og = []
+
+    start_time = time()
+
+    iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
+    _, _, iter_og_i = synth(problem, iterator, max_enumerations = 75000)
+    append!(iter_og, iter_og_i)
+
+    end_time = time()
+
+    time_taken_original = end_time - start_time
+
+    #4. Synthesise the test set using the new grammar
+    println("=================================")
+    println("RUNNING TESTING WITH NEW GRAMMAR")
+
+    iter_ext = []
+    start_time = time()
+
+    iterator = BFSIterator(g, settings["output_type"], max_depth=settings["max_depth_iterator"])
+    _, _, iter_og_i = synth(problem, iterator, max_enumerations = 75000)
+    append!(iter_og, iter_og_i)
+
+    end_time = time()
+
+    return Dict(
+        "time_taken_original" => time_taken_original, 
+        "time_taken_extended" => end_time - start_time,
+        "iter_original" => iter_og,
+        "iter_ext" => iter_ext,
+        "grammar_extended" => g_extended,
+        # "AST_size_original" => length(solution_original),
+        # "AST_size_extended" => length(solution_extended)
+    )
+end
+
+function results_to_csv(i::Int64, results::Vector{Any})
     df = DataFrame(results)
-    CSV.write("results.csv", df)
+    CSV.write("results_$i.csv", df)
 end
 
 function generate_eval_set(n_trees::Int, g, size::Int)::Vector{RuleNode}
@@ -79,121 +161,296 @@ function generate_eval_set(n_trees::Int, g, size::Int)::Vector{RuleNode}
     return eval_asts
 end
 
-# single_variable_grammar = @cfgrammar begin
-#     Number = |(1:2)
-#     Number = x
-#     Number = Number + Number 
-#     Number = Number - Number
-#     Number = Number * Number
-#     Number = Number / Number
-#     # Number = √Complex(Number)
-# end
+function split_problem_set(input::Vector, split::Float64 = 0.75)
+    input = shuffle(input)[begin:10]
 
-# dual_variable_grammar = @cfgrammar begin
-#     Number = |(1:2)
-#     Number = x
-#     Number = y
-#     Number = Number + Number 
-#     Number = Number - Number
-#     Number = Number * Number
-#     Number = Number / Number
-# end
+    halfway_point = trunc(Int64, length(input)*split)
+    training_set = input[begin:halfway_point]
+    testing_set = input[halfway_point + 1:end]
 
-# g = dual_variable_grammar
+    return training_set, testing_set
+end
+
 
 function experiment_1()
     # Grammar
-    g = @cfgrammar begin
-        Number = |(1:2)
-        Number = x
-        Number = Number + Number 
-        Number = Number * Number
-    end
+    g = dual_arith_bool_grammar
+
     # Generate evaluation set
-    eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+    training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
+
+
+
     # Settings
     settings = Dict(
         "output_type" => :Number,
         "max_depth_iterator" => 5,
-        "learn_asts" => eval_asts,
         "grammar" => g,
         # The set of problems to test efficacy against
-        "eval_problems" =>  [Problem([IOExample(Dict(:x => x), 2x+1) for x ∈ 1:5]), 
-                             Problem([IOExample(Dict(:x => x), 3x+5) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 2+4x) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 5x+5) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 2x+2+2x+2) for x ∈ 1:5])],
-        "grammar_extension_percentage" => 0.5::Float64,
-        "subtree_selection_strategy" => 1::Int,) # 1 is occurences and # 2 is occurences * size 
+        "training_set" => training_set,
+        "testing_set" => testing_set,
+        "best_n" => 0.5::Float64,
+        "subtree_selection_strategy" => 1::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
-    println(string(results))
 end
-
-function benchmark1()
-    # repeat experiment 1 10 times
-    results = []
-    for i in 1:10
-        push!(results, experiment_1())
-    end 
-    return results
-end
-# print(string(benchmark1()))
 
 function experiment_2()
     # Grammar
-    g = @cfgrammar begin
-        Number = |(1:2)
-        Number = x
-        Number = Number + Number 
-        Number = Number * Number
-    end
+    g = dual_arith_bool_grammar
+    
     # Generate evaluation set
-    eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+    training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
+
     # Settings
     settings = Dict(
         "output_type" => :Number,
         "max_depth_iterator" => 5,
-        "learn_asts" => eval_asts,
         "grammar" => g,
         # The set of problems to test efficacy against
-        "eval_problems" =>  [Problem([IOExample(Dict(:x => x), 2x+3+2x+3) for x ∈ 1:5]), 
-                             Problem([IOExample(Dict(:x => x), 2x+3+5x) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 2x+3+4x) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 5x+5) for x ∈ 1:5]),
-                             Problem([IOExample(Dict(:x => x), 2x+2+2x+2) for x ∈ 1:5])],
-        "grammar_extension_percentage" => 0.5::Float64,
-        "subtree_selection_strategy" => 1::Int,) # 1 is occurences and # 2 is occurences * size 
+        "training_set" => training_set,
+        "testing_set" => testing_set,
+        "best_n" => 0.75::Float64,
+        "subtree_selection_strategy" => 1::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
-    println(string(results))
 end
-function benchmark2()
-    # repeat experiment 2 10 times
-    results = []
-    for i in 1:10
-        push!(results, experiment_2())
-    end 
+
+function experiment_3()
+    # Grammar
+    g = dual_arith_bool_grammar
+    
+    # Generate evaluation set
+    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+    training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
+
+    # Settings
+    settings = Dict(
+        "output_type" => :Number,
+        "max_depth_iterator" => 5,
+        "grammar" => g,
+        # The set of problems to test efficacy against
+        "training_set" => training_set,
+        "testing_set" => testing_set,
+        "best_n" => 0.95::Float64,
+        "subtree_selection_strategy" => 1::Int) # 1 is occurences and # 2 is occurences * size 
+    results = benchmark(settings)
     return results
 end
-result = benchmark2()
-print(string(result))
-print(results_to_csv(result))
-# print(string(benchmark2()))
-#= 
-A set of problems
-problems = []
-functions = []
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+1) for x ∈ 1:5]))
-push!(functions, "2x+1")
-push!(problems, Problem([IOExample(Dict(:x => x), 3x+5) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2+4x) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 5x+5) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+2+2x+2) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 4x+3+2x) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+3+2x) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+3+2x+3) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+3+2x+3+2x) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+3+2x+3+2x+3) for x ∈ 1:5]))
-push!(problems, Problem([IOExample(Dict(:x => x), 2x+3+2x+3+2x+3+2x) for x ∈ 1:5]))
-=#
+
+function experiment_4()
+    # Grammar
+    g = dual_arith_bool_grammar
+
+    # Generate evaluation set
+    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+    training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
+
+
+
+    # Settings
+    settings = Dict(
+        "output_type" => :Number,
+        "max_depth_iterator" => 5,
+        "grammar" => g,
+        # The set of problems to test efficacy against
+        "training_set" => training_set,
+        "testing_set" => testing_set,
+        "best_n" => 0.5::Float64,
+        "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
+    results = benchmark(settings)
+    return results
+end
+
+function experiment_5()
+    # Grammar
+    g = dual_arith_bool_grammar
+    
+    # Generate evaluation set
+    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+    training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
+
+    # Settings
+    settings = Dict(
+        "output_type" => :Number,
+        "max_depth_iterator" => 5,
+        "grammar" => g,
+        # The set of problems to test efficacy against
+        "training_set" => training_set,
+        "testing_set" => testing_set,
+        "best_n" => 0.75::Float64,
+        "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
+    results = benchmark(settings)
+    return results
+end
+
+function experiment_6()
+    # Grammar
+    g = dual_arith_bool_grammar
+    
+    # Generate evaluation set
+    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
+    training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
+
+    # Settings
+    settings = Dict(
+        "output_type" => :Number,
+        "max_depth_iterator" => 5,
+        "grammar" => g,
+        # The set of problems to test efficacy against
+        "training_set" => training_set,
+        "testing_set" => testing_set,
+        "best_n" => 0.95::Float64,
+        "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
+    results = benchmark(settings)
+    return results
+end
+
+function herb_experiment()
+    grammars = [name for name in names(Grammars, all=true, imported=false) if startswith(String(name), "grammar")]
+    problems = [name for name in names(Problems, all=true, imported=false) if startswith(String(name), "problem")]
+
+    for (x, y) in zip(grammars, problems)
+        grammar = getfield(Grammars, x)
+        problem = getfield(Problems, y)
+
+        settings = Dict(
+        "output_type" => :Number,
+        "max_depth_iterator" => 5,
+        "grammar" => grammar,
+        # The set of problems to test efficacy against
+        "problem" => problem,
+        "best_n" => 0.85::Float64,
+        "max_depth" => 2::Int,
+        "subtree_selection_strategy" => 1::Int,) # 1 is occurences and # 2 is occurences * size
+        results = benchmark_herb(settings)
+        print(results)
+    end
+end
+
+function all_benchmarks()
+
+    runs = 10
+
+    improvements1 = []
+    results1 = []
+    start_time = time()
+    for i in 1:runs
+        println("experiment ", 1 ," iteration ", i)
+        push!(results1, experiment_1())
+        # println(typeof(results1))
+        push!(improvements1, results1[end]["iter_original"] - results1[end]["iter_ext"])
+        # print(string(results1))
+    end
+    end_time = time()
+    println(results_to_csv(1, results1))
+
+    println("experiment 1 done: ", end_time-start_time)
+    println("Improvements exp 1: ")
+    println(improvements1)
+    println("-----------------------------------------------------------------------------")
+
+    improvements2 = []
+    results2 = []
+    start_time = time()
+    for i in 1:runs
+        println("experiment ", 2 ," iteration ", i)
+
+        push!(results2, experiment_2())
+        push!(improvements2, results2[end]["iter_original"] - results2[end]["iter_ext"])
+        # print(string(result))
+    end
+    end_time = time()
+    print(results_to_csv(2, results2))
+
+    println("experiment 2 done: ", end_time-start_time)
+    println("improvements exp 2: ")
+    println(improvements2)
+    println("-----------------------------------------------------------------------------")
+
+    improvements3 = []
+    results3 = []
+    start_time = time()
+    for i in 1:runs
+        println("experiment ", 3 ," iteration ", i)
+
+        push!(results3, experiment_3())
+        push!(improvements3, results3[end]["iter_original"] - results3[end]["iter_ext"])
+        # print(string(result))
+    end
+    end_time = time()
+    print(results_to_csv(3, results3))
+
+    println("experiment 3 done: ", end_time-start_time)
+    println("improvements exp 3: ")
+    println(improvements3)
+    println("-----------------------------------------------------------------------------")
+
+
+    improvements4 = []
+    results4 = []
+    start_time = time()
+    for i in 1:runs
+        println("experiment ", 4 ," iteration ", i)
+        push!(results4, experiment_4())
+        # println(typeof(results1))
+        push!(improvements4, results4[end]["iter_original"] - results4[end]["iter_ext"])
+        # print(string(results1))
+    end
+    end_time = time()
+    println(results_to_csv(4, results4))
+
+    println("experiment 4 done: ", end_time-start_time)
+    println("Improvements exp 4: ")
+    println(improvements4)
+    println("-----------------------------------------------------------------------------")
+
+    improvements5 = []
+    results5 = []
+    start_time = time()
+    for i in 1:runs
+        println("experiment ", 5 ," iteration ", i)
+
+        push!(results5, experiment_5())
+        push!(improvements5, results5[end]["iter_original"] - results5[end]["iter_ext"])
+        # print(string(result))
+    end
+    end_time = time()
+    print(results_to_csv(5, results5))
+
+    println("experiment 5 done: ", end_time-start_time)
+    println("improvements exp 5: ")
+    println(improvements5)
+    println("-----------------------------------------------------------------------------")
+
+    improvements6 = []
+    results6 = []
+    start_time = time()
+    for i in 1:runs
+        println("experiment ", 6 ," iteration ", i)
+
+        push!(results6, experiment_6())
+        push!(improvements6, results6[end]["iter_original"] - results6[end]["iter_ext"])
+        # print(string(result))
+    end
+    end_time = time()
+    print(results_to_csv(6, results6))
+
+    println("experiment 6 done: ", end_time-start_time)
+    println("improvements exp 6: ")
+    println(improvements6)
+    println("-----------------------------------------------------------------------------")
+
+    println("all improvements:")
+    println(improvements1)
+    println(improvements2)
+    println(improvements3)
+    println(improvements4)
+    println(improvements5)
+    println(improvements6)
+end
+
+all_benchmarks()
+# herb_experiment()
