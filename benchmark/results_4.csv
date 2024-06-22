@@ -1,0 +1,531 @@
+iter_original,grammar_extended,time_taken_original,time_taken_extended,iter_ext
+"Any[48, 75000, 48, 1761, 75000, 1118, 75000, 75000, 6, 1079, 48, 75000, 23778, 75000, 162, 75000, 75000, 395, 75000, 75000]","1: Element = Number
+2: Element = Bool
+3: Number = 1
+4: Number = 2
+5: Number = x
+6: Number = y
+7: Number = Number + Number
+8: Number = Number - Number
+9: Number = Number * Number
+10: Number = Number / Number
+11: Bool = Number > Number
+12: Number = if Bool
+    Number
+else
+    Number
+end
+13: Bool = if Bool
+    Bool
+else
+    Bool
+end
+14: Number = x + y
+15: Number = if 1 > y
+    y / 2
+else
+    Number
+end
+16: Number = x * y
+17: Number = if x > y
+    x - y
+else
+    Number
+end
+18: Number = y - x
+19: Number = Number * 2
+20: Number = x - y
+21: Number = x / 2
+22: Number = y - 1
+23: Number = if y > x
+    y - x
+else
+    Number
+end
+24: Number = if y > 1
+    y / 2
+else
+    Number
+end
+25: Number = if x > y
+    y + x
+else
+    Number
+end
+26: Number = y * x
+",10.711345195770264,13.008262872695923,"Any[8, 75000, 8, 493, 75000, 611, 75000, 75000, 1, 671, 8, 75000, 75000, 75000, 5357, 75000, 1360, 56, 75000, 75000]"
+"Any[75000, 48, 8, 2414, 75000, 75000, 1118, 162, 48, 6, 395, 75000, 75000, 73, 75000, 75000, 6, 1118, 75000, 48]","1: Element = Number
+2: Element = Bool
+3: Number = 1
+4: Number = 2
+5: Number = x
+6: Number = y
+7: Number = Number + Number
+8: Number = Number - Number
+9: Number = Number * Number
+10: Number = Number / Number
+11: Bool = Number > Number
+12: Number = if Bool
+    Number
+else
+    Number
+end
+13: Bool = if Bool
+    Bool
+else
+    Bool
+end
+14: Number = x + y
+15: Number = if 1 > y
+    y / 2
+else
+    Number
+end
+16: Number = x * y
+17: Number = x - y
+18: Number = y - 1
+19: Number = 2 * 2
+20: Number = if y > x
+    y - x
+else
+    Number
+end
+21: Number = if y > 1
+    y / 2
+else
+    Number
+end
+22: Number = if x > y
+    x - y
+else
+    Number
+end
+23: Number = if y > 1
+    y - 1
+else
+    Number
+end
+24: Number = Number * 2
+25: Number = if x > y
+    y + x
+else
+    Number
+end
+26: Number = Number / (x / 2)
+27: Number = y - x
+28: Bool = x > y
+",8.19116997718811,8.860291957855225,"Any[75000, 9, 59, 121, 75000, 75000, 551, 5862, 9, 1, 53, 75000, 770, 55, 75000, 17, 1, 551, 75000, 9]"
+"Any[48, 75000, 1118, 19337, 2414, 1085, 75000, 73, 75000, 1761, 48, 75000, 75000, 75000, 1075, 75000, 75000, 6, 75000, 75000]","1: Element = Number
+2: Element = Bool
+3: Number = 1
+4: Number = 2
+5: Number = x
+6: Number = y
+7: Number = Number + Number
+8: Number = Number - Number
+9: Number = Number * Number
+10: Number = Number / Number
+11: Bool = Number > Number
+12: Number = if Bool
+    Number
+else
+    Number
+end
+13: Bool = if Bool
+    Bool
+else
+    Bool
+end
+14: Number = x + y
+15: Number = x * y
+16: Number = y / 2
+17: Number = if x > y
+    x - y
+else
+    Number
+end
+18: Number = Number * 2
+19: Number = y * x
+20: Number = if 1 > y
+    y / 2
+else
+    Number
+end
+21: Number = if y > 1
+    y - 1
+else
+    Number
+end
+22: Number = x - y
+23: Number = x / 2
+24: Number = 2 * 2
+25: Number = y - x
+26: Number = y - 1
+",12.078412055969238,13.550009965896606,"Any[10, 75000, 614, 45079, 83, 664, 75000, 24, 57, 573, 10, 75000, 75000, 75000, 6099, 75000, 75000, 11, 75000, 75000]"
+"Any[48, 75000, 75000, 75000, 1085, 6, 73, 6, 75000, 1761, 1761, 48, 75000, 75000, 6, 75000, 48, 1085, 1118, 2414]","1: Element = Number
+2: Element = Bool
+3: Number = 1
+4: Number = 2
+5: Number = x
+6: Number = y
+7: Number = Number + Number
+8: Number = Number - Number
+9: Number = Number * Number
+10: Number = Number / Number
+11: Bool = Number > Number
+12: Number = if Bool
+    Number
+else
+    Number
+end
+13: Bool = if Bool
+    Bool
+else
+    Bool
+end
+14: Number = x + y
+15: Number = if 1 > y
+    y / 2
+else
+    Number
+end
+16: Number = if x > y
+    x - y
+else
+    Number
+end
+17: Number = x * y
+18: Number = Number * 2
+19: Number = y * x
+20: Number = y - 1
+21: Number = y - x
+22: Number = 2 * 2
+23: Number = if y > 1
+    y - 1
+else
+    Number
+end
+24: Number = x - y
+25: Number = y + x
+26: Number = x / 2
+",7.2010931968688965,9.267367839813232,"Any[2, 75000, 75000, 75000, 656, 12, 27, 12, 75000, 470, 470, 2, 75000, 75000, 12, 75000, 2, 656, 614, 227]"
+"Any[395, 75000, 75000, 6533, 1079, 48, 75000, 75000, 75000, 194, 75000, 1118, 75000, 75000, 6, 48, 48, 75000, 75000, 73]","1: Element = Number
+2: Element = Bool
+3: Number = 1
+4: Number = 2
+5: Number = x
+6: Number = y
+7: Number = Number + Number
+8: Number = Number - Number
+9: Number = Number * Number
+10: Number = Number / Number
+11: Bool = Number > Number
+12: Number = if Bool
+    Number
+else
+    Number
+end
+13: Bool = if Bool
+    Bool
+else
+    Bool
+end
+14: Number = x + y
+15: Number = if 1 > y
+    y / 2
+else
+    Number
+end
+16: Number = x * y
+17: Number = x - y
+18: Number = y - 1
+19: Number = y - x
+20: Number = if Bool
+    y - x
+else
+    y * y
+end
+21: Number = if x > y
+    x - y
+else
+    Number
+end
+22: Number = Number * 2
+23: Number = if x > y
+    y + x
+else
+    Number
+end
+24: Number = y * x
+25: Number = y + 2
+26: Number = Number / (x / 2)
+",10.122920036315918,11.356631994247437,"Any[57, 75000, 546, 59484, 611, 9, 75000, 75000, 24, 295, 75000, 559, 75000, 75000, 7, 9, 9, 75000, 75000, 59]"
+"Any[19337, 75000, 6, 75000, 6, 309, 75000, 48, 48, 48, 75000, 75000, 48, 75000, 75000, 75000, 194, 75000, 2414, 1118]","1: Element = Number
+2: Element = Bool
+3: Number = 1
+4: Number = 2
+5: Number = x
+6: Number = y
+7: Number = Number + Number
+8: Number = Number - Number
+9: Number = Number * Number
+10: Number = Number / Number
+11: Bool = Number > Number
+12: Number = if Bool
+    Number
+else
+    Number
+end
+13: Bool = if Bool
+    Bool
+else
+    Bool
+end
+14: Number = x + y
+15: Number = x * y
+16: Number = if 1 > y
+    y / 2
+else
+    Number
+end
+17: Number = if x > y
+    x - y
+else
+    Number
+end
+18: Number = y - x
+19: Number = y - 1
+20: Number = Number * 2
+21: Number = y * x
+22: Number = x / 2
+23: Number = if y > x
+    y - x
+else
+    Number
+end
+24: Number = if y > 1
+    y - 1
+else
+    Number
+end
+25: Number = if x > y
+    y + x
+else
+    Number
+end
+26: Number = y * y
+27: Number = x - y
+",10.028280019760132,12.349350929260254,"Any[75000, 75000, 9, 75000, 9, 5567, 75000, 8, 8, 8, 75000, 75000, 8, 75000, 75000, 65, 213, 75000, 282, 669]"
+"Any[75000, 75000, 1085, 6, 75000, 75000, 75000, 75000, 395, 75000, 75000, 75000, 48, 48, 75000, 1761, 23778, 6, 6, 75000]","1: Element = Number
+2: Element = Bool
+3: Number = 1
+4: Number = 2
+5: Number = x
+6: Number = y
+7: Number = Number + Number
+8: Number = Number - Number
+9: Number = Number * Number
+10: Number = Number / Number
+11: Bool = Number > Number
+12: Number = if Bool
+    Number
+else
+    Number
+end
+13: Bool = if Bool
+    Bool
+else
+    Bool
+end
+14: Number = x + y
+15: Number = if 1 > y
+    y / 2
+else
+    Number
+end
+16: Number = x * y
+17: Number = if x > y
+    x - y
+else
+    Number
+end
+18: Number = Number / (x / 2)
+19: Number = Number * 2
+20: Number = y - 1
+21: Number = if y > x
+    y - x
+else
+    Number
+end
+22: Number = x - y
+23: Number = y - x
+24: Number = y * y
+25: Number = y + 2
+26: Number = Number * (2 * 2)
+27: Number = 1 + Number
+28: Number = 1 + 2
+",11.164007186889648,11.792204856872559,"Any[75000, 75000, 32, 12, 75000, 75000, 75000, 75000, 71, 23, 75000, 75000, 7, 7, 75000, 577, 396, 12, 12, 75000]"
+"Any[1761, 1085, 75000, 75000, 75000, 75000, 6, 75000, 395, 75000, 6, 23778, 395, 194, 6, 1079, 75000, 75000, 6, 395]","1: Element = Number
+2: Element = Bool
+3: Number = 1
+4: Number = 2
+5: Number = x
+6: Number = y
+7: Number = Number + Number
+8: Number = Number - Number
+9: Number = Number * Number
+10: Number = Number / Number
+11: Bool = Number > Number
+12: Number = if Bool
+    Number
+else
+    Number
+end
+13: Bool = if Bool
+    Bool
+else
+    Bool
+end
+14: Number = x + y
+15: Number = x * y
+16: Number = if x > y
+    x - y
+else
+    Number
+end
+17: Number = if 1 > y
+    y / 2
+else
+    Number
+end
+18: Number = y - 1
+19: Number = if y > x
+    y - x
+else
+    Number
+end
+20: Number = if y > 1
+    y - 1
+else
+    Number
+end
+21: Number = if x > y
+    y + x
+else
+    Number
+end
+22: Number = y / 2
+23: Number = y * x
+24: Number = x - y
+25: Number = x / 2
+26: Number = Number * 2
+27: Number = y - x
+28: Number = 1 + 2
+",8.362538814544678,10.718907117843628,"Any[637, 897, 75000, 78, 75000, 75000, 10, 75000, 48, 75000, 10, 75000, 48, 203, 10, 925, 75000, 75000, 10, 48]"
+"Any[75000, 1118, 1079, 1118, 75000, 73, 75000, 75000, 75000, 75000, 75000, 75000, 75000, 75000, 8, 48, 75000, 75000, 75000, 309]","1: Element = Number
+2: Element = Bool
+3: Number = 1
+4: Number = 2
+5: Number = x
+6: Number = y
+7: Number = Number + Number
+8: Number = Number - Number
+9: Number = Number * Number
+10: Number = Number / Number
+11: Bool = Number > Number
+12: Number = if Bool
+    Number
+else
+    Number
+end
+13: Bool = if Bool
+    Bool
+else
+    Bool
+end
+14: Number = x + y
+15: Number = x * y
+16: Number = if 1 > y
+    y / 2
+else
+    Number
+end
+17: Number = if Bool
+    x - y
+else
+    y - x
+end
+18: Number = x - y
+19: Number = y - 1
+20: Number = if y > x
+    y - x
+else
+    Number
+end
+21: Number = if y > 1
+    y - 1
+else
+    Number
+end
+22: Number = Number * 2
+23: Number = if x > y
+    y + x
+else
+    Number
+end
+24: Number = y + 2
+25: Bool = x > y
+26: Number = y * x
+",14.236884117126465,15.484100818634033,"Any[4954, 521, 501, 521, 66, 56, 75000, 75000, 75000, 75000, 75000, 75000, 75000, 10635, 60, 10, 75000, 75000, 75000, 3001]"
+"Any[75000, 6, 75000, 75000, 75000, 75000, 1118, 48, 75000, 75000, 75000, 75000, 73, 48, 75000, 75000, 48, 75000, 48, 6]","1: Element = Number
+2: Element = Bool
+3: Number = 1
+4: Number = 2
+5: Number = x
+6: Number = y
+7: Number = Number + Number
+8: Number = Number - Number
+9: Number = Number * Number
+10: Number = Number / Number
+11: Bool = Number > Number
+12: Number = if Bool
+    Number
+else
+    Number
+end
+13: Bool = if Bool
+    Bool
+else
+    Bool
+end
+14: Number = x + y
+15: Number = x * y
+16: Number = if x > y
+    x - y
+else
+    Number
+end
+17: Number = y / 2
+18: Number = Number * 2
+19: Number = x - y
+20: Number = if y > x
+    y - x
+else
+    Number
+end
+21: Number = if 1 > y
+    y / 2
+else
+    Number
+end
+22: Number = if x > y
+    y + x
+else
+    Number
+end
+23: Number = y * x
+24: Number = Number / (x / 2)
+25: Number = y - 1
+26: Number = y - x
+27: Number = y * y
+",11.846410989761353,11.828367948532104,"Any[75000, 9, 75000, 660, 75000, 75000, 669, 10, 2456, 75000, 33, 75000, 61, 10, 75000, 75000, 10, 75000, 10, 9]"

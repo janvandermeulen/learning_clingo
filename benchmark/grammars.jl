@@ -13,8 +13,8 @@ dual_arith_bool_grammar = @cfgrammar begin
     Element = Bool # 2
     # Number logic
     Number = |(1:2) # 3-4
-    Bool = true
-    Bool = false
+    # Bool = true
+    # Bool = false
     # Bool = |(true:false) # 5-6
     Number = x # 7
     Number = y # 8
@@ -23,7 +23,7 @@ dual_arith_bool_grammar = @cfgrammar begin
     Number = Number * Number # 11
     Number = Number / Number # 12 
     # Bool logic
-    Bool = Number ≡ Number # 13
+    # Bool = Number ≡ Number # 13
     Bool = Number > Number # 14
     Number = Bool ? Number : Number # 15
     Bool = Bool ? Bool : Bool # 16
