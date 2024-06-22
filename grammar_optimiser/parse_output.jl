@@ -1,4 +1,3 @@
-using Pkg; Pkg.add("JSON")
 using JSON
 
 function read_json(json_file)

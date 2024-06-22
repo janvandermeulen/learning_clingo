@@ -1,4 +1,3 @@
-import Pkg; Pkg.add("JSON")
 using HerbSearch, HerbCore, HerbSpecification, HerbInterpret, HerbGrammar, JSON
 using Base
 

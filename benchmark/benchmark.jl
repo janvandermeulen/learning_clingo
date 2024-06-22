@@ -1,4 +1,4 @@
-import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification","HerbSearch", "HerbInterpret"])
+# import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification","HerbSearch", "HerbInterpret"])
 include("../grammar_optimiser/grammar_optimiser.jl")
 include("benchmark_setup.jl")
 include("problem_sets.jl")

@@ -1,4 +1,3 @@
-import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification", "HerbSearch", "HerbInterpret"])
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
 function generate_tree_from_compression(parent, d, compression_id, grammar)

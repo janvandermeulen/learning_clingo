@@ -1,6 +1,4 @@
-import Pkg; 
 using HerbCore; using Base; using CSV;
-Pkg.add("HerbCore"); 
 include("enumerate_subtrees.jl")
 include("parse_subtrees_to_json.jl")
 include("parse_input.jl")
@@ -65,7 +63,7 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
         output_location = joinpath(dir_path, "outputs", "clingo_output$(i).json")
         command = `clingo $(model_location) $(input_location) --outf=2`
         # print("Running command: " * string(command) * "\n")
-        print(i, ", ")
+        println(i, ", ")
         try 
             open(output_location, "w") do output_file
                 run(pipeline(command, output_file))
