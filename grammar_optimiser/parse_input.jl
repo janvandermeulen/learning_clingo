@@ -1,7 +1,5 @@
-# Import stack datastructure
 import Pkg; Pkg.add("DataStructures"); Pkg.add("JSON")
 using JSON; using DataStructures;
-
 
 function parse_number(start_index, input)
     """
