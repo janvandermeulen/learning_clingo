@@ -4,6 +4,15 @@ using JSON; using DataStructures;
 
 
 function parse_number(start_index, input)
+    """
+    Parses a number from a string.
+    # Arguments
+    - `start_index::Int64`: the index to start parsing from
+    - `input::String`: the input string
+    # Result
+    - `number::String`: the parsed number
+    - `i::Int64`: the index of the last character parsed
+    """
     number = ""
     i = start_index
     while i <= length(input)
@@ -19,6 +28,16 @@ function parse_number(start_index, input)
 end
 
 function parse_tree(input, global_dict=nothing, start_index=0)
+    """
+    Parses a tree from a string.
+    # Arguments
+    - `input::String`: the input string
+    - `global_dict::Dict`: the global dictionary
+    - `start_index::Int64`: the index to start parsing from
+    # Result
+    - `index::Int64`: the index of the last node parsed
+    - `output::String`: the parsed tree
+    """ 
     nodes, edges, output = "","",""
     parent, index = start_index, start_index
     # parent_stack keeps track of the parent node
@@ -77,6 +96,14 @@ function parse_tree(input, global_dict=nothing, start_index=0)
 end
 
 function parse_json(json_path, output_path)
+    """
+    Parses a JSON file.
+    # Arguments
+    - `json_path::String`: the path to the JSON file
+    - `output_path::String`: the path to the output file
+    # Result
+    - `global_dict::Dict`: the global dictionary
+    """
     global_dict = Dict{Int64, NamedTuple{(:comp_id,:parent_id, :child_nr, :type, :children), <:Tuple{Int64,Int64,Int64,Int64,Vector}}}()
     # Read in the JSON file
     json_content = read(json_path, String)
@@ -96,9 +123,7 @@ function parse_json(json_path, output_path)
     return global_dict
 end
 
-function main(ARGS)
-    parse_json(ARGS[1], ARGS[2])
-end
+
 """
 Schema:
 Node(id, grammar_rule) e.g. Node(1, 1)

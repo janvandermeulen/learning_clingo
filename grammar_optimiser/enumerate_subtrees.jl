@@ -1,8 +1,14 @@
 using HerbSearch, HerbCore, HerbSpecification, HerbInterpret, HerbGrammar, DataStructures
 
-
-
-function select_subtrees(tree::RuleNode, g::AbstractGrammar)
+function enumerate_subtrees(tree::RuleNode, g::AbstractGrammar)
+    """
+    Enumerates all subtrees of a given tree.
+    # Arguments
+    - `tree::RuleNode`: the tree to enumerate the subtrees of
+    - `g::AbstractGrammar`: the grammar to use
+    # Result
+    - `subtrees::Vector{RuleNode}`: a list of all subtrees of the tree
+    """
     if length(tree.children) == 0
         return ([tree], [])
     end   
@@ -43,11 +49,14 @@ function select_subtrees(tree::RuleNode, g::AbstractGrammar)
     return (subtrees_tree_root, other_subtrees)
 end
 
-# function combinations_helper(n::Int)
-#     return n == 0 ? [] : combinations(n)
-# end
-
 function combinations(n::Int)
+    """
+    Generates all combinations of n elements.
+    # Arguments
+    - `n::Int`: the number of elements
+    # Result
+    - `combinations::Vector{Vector{Bool}}`: a list of all combinations
+    """
     if n == 0
         return [[]]
     end
@@ -57,6 +66,14 @@ function combinations(n::Int)
 end
 
 function selection_criteria(tree::RuleNode, subtree::AbstractRuleNode)
+    """
+    Determines whether a subtree should be selected.
+    # Arguments
+    - `tree::RuleNode`: the tree
+    - `subtree::AbstractRuleNode`: the subtree
+    # Result
+    - `Bool`: true if the subtree should be selected, false otherwise
+    """
     size = length(subtree)
     return size > 1 && size < length(tree)
 end
