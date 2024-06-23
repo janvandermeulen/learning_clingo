@@ -159,7 +159,7 @@ function generate_eval_set(n_trees::Int, g, size::Int)::Vector{RuleNode}
 end
 
 function split_problem_set(input::Vector, split::Float64 = 0.75)
-    input = shuffle(input)[begin:10]
+    input = shuffle(input)[begin:100]
 
     halfway_point = trunc(Int64, length(input)*split)
     training_set = input[begin:halfway_point]
