@@ -1,12 +1,10 @@
-# Learning Clingo
-This repository has two main functionalities, the Clingo model: ```models/README.md``` and parsing see ```parsing/README.md```.
+# Grammar Optimiser
 
-### Using the Parser and Clingo
-An example is provided in the ```example``` directory. 
+Codebase for the refactoring for program synthesis project. See `getting_started.jl` to see how it should be used. The main `grammar_optimiser` function is in `grammar_optimiser/grammar_optimiser.jl`. It takes a list of ASTs, a grammar, a subtree selection strategy and the fraction of best compressions that should be used.
 
-### Running clingo
-To run some examples you can run it using the clingo command. 
-```clingo <encoding> <instance>```
-```clingo examples/toh_enc.lp examples/toh_ins.lp```
-
-To let clingo give a JSON output you can use the flag ```--outf=2```.
+## Authors
+- Rixt Hellinga
+- Jan van der Meulen
+- Pallabi Sree Sarker
+- Matteo Bertorotta
+- Roan Rosema

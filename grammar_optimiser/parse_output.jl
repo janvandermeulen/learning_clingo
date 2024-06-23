@@ -1,10 +1,13 @@
-using Pkg; Pkg.add("JSON")
 using JSON
 
-# Provide the path to the JSON file from the directory where you execute the script
-# E.g. if running from the root of this directory: julia models/output_parser.jl test_output.json
-# json_file = ARGS[1]
 function read_json(json_file)
+    """
+    Reads a JSON file and returns the parsed content.
+    # Arguments
+    - `json_file::String`: the path to the JSON file
+    # Result
+    - `json_parsed::Dict`: the parsed JSON content
+    """
     json_content = read(json_file, String)
     json_parsed = JSON.parse(json_content)
 

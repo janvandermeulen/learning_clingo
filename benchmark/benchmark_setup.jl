@@ -1,5 +1,5 @@
-import Pkg;  
-Pkg.add("DataFrames"); Pkg.add("CSV"); Pkg.add("HerbGrammar")
+# import Pkg;  
+# Pkg.add("DataFrames"); Pkg.add("CSV"); Pkg.add("HerbGrammar")
 using DataFrames; using CSV; using HerbGrammar;
 
 function create_input(csv_path::String, debug::Bool=false) :: Vector{RuleNode}

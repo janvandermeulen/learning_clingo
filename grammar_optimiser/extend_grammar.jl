@@ -1,13 +1,16 @@
-import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification", "HerbSearch", "HerbInterpret"])
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
-# function that takes a tree in the form of a list of nodes, and converts it to a Herb interpretable tree
-# input:
-#### global dictionary d: (key: node_id, value: namedTuple(compression_id, parent_id, child_nr, type))
-#### one compression ID: int
-# output: Herb tree
-
 function generate_tree_from_compression(parent, d, compression_id, grammar)
+    """
+    Generates a Herb tree from a given compression.
+    # Arguments
+    - `parent::Int64`: the ID of the parent node
+    - `d::Dict`: the global dictionary (key: node_id, value: namedTuple(compressiond_id, parent_id, child_nr, type, [children]))
+    - `compression_id::Int64`: the ID of the compression
+    - `grammar::AbstractGrammar`: the grammar to use
+    # Result
+    - `tree::RuleNode`: the Herb tree
+    """
     parent_type = d[parent].type
     actual_children = grammar.childtypes[parent_type]
     
@@ -49,8 +52,17 @@ function generate_tree_from_compression(parent, d, compression_id, grammar)
     return tree
 end
 
-# calls above function for an entire dict of compressions
+
 function generate_trees_from_compressions(global_dict, stats, grammar)
+    """
+    Generates Herb trees from a given dictionary of compressions.
+    # Arguments
+    - `global_dict::Dict`: the global dictionary (key: node_id, value: namedTuple(compressiond_id, parent_id, child_nr, type, [children]))
+    - `stats::Dict`: the statistics of the compressions (key: compression_id, value: namedTuple(size, occurences))
+    - `grammar::AbstractGrammar`: the grammar to use
+    # Result
+    - `tree_stats_dict::Dict`: a dictionary of Herb trees (key: RuleNode, value: namedTuple(size, occurences))
+    """
 
     tree_stats_dict = Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}()
 
@@ -61,17 +73,17 @@ function generate_trees_from_compressions(global_dict, stats, grammar)
     
     return tree_stats_dict
 end
-    # tree::RuleNode
-    # rootNode
-    # matching type with grammar rule?
 
-    # get the nodes
-
-
-# function that takes a grammar and a Herb-tree, and extends the gramar with it
-# input: herb tree, standard grammar
-# output: extended grammar
 function extendGrammar(tree, grammar)
+    """
+    Extends a given grammar with a Herb tree.
+    # Arguments
+    - `tree::RuleNode`: the Herb tree
+    - `grammar::AbstractGrammar`: the grammar to extend
+    # Result
+    - `grammar::AbstractGrammar`: the extended grammar
+    """
+
     type = return_type(grammar, tree.ind)
     new_grammar_rule = rulenode2expr(tree, grammar)
     add_rule!(grammar, :($type = $new_grammar_rule))

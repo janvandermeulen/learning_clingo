@@ -1,7 +1,5 @@
-import Pkg; 
 using HerbCore; using Base; using CSV;
-Pkg.add("HerbCore"); 
-include("get_subtrees.jl")
+include("enumerate_subtrees.jl")
 include("parse_subtrees_to_json.jl")
 include("parse_input.jl")
 include("parse_output.jl")
@@ -9,17 +7,32 @@ include("analyze_compressions.jl")
 include("extend_grammar.jl")
 
 function run_command(command)
+    """
+    Run a command in the shell.
+    # Arguments
+    - `command::Cmd`: the command to run
+    """
     run(`$command`)
 end
 
-function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, subtree_selection_strategy::Int, best_n::Float64)
+function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, subtree_selection_strategy::Int, f_best::Float64)
+    """
+    Optimises a grammar based on a set of trees.
+    # Arguments
+    - `trees::Vector{RuleNode}`: the trees to optimise the grammar for
+    - `grammar::AbstractGrammar`: the grammar to optimise
+    - `subtree_selection_strategy::Int`: the strategy to select subtrees
+    - `f_best::Float64`: the number of best compressions to select
+    # Result
+    - `new_grammar::AbstractGrammar`: the optimised grammar
+    """
     dir_path = dirname(@__FILE__)     
     start_time = time()
     print("Stage 1: Select subtrees\n")     # 1a. Select subtrees 
     subtree_set = Vector{Any}()
     for tree in trees
         test = time()
-        (subtrees_root, other_subtrees) = select_subtrees(tree, grammar)
+        (subtrees_root, other_subtrees) = enumerate_subtrees(tree, grammar)
         # print("Time for tree selection 1: " * string(time() - test) * "\n"); test = time()
         subtrees = vcat(subtrees_root, other_subtrees)
         # print("Time for concatenation 1: " * string(time() - test) * "\n"); test = time()
@@ -50,7 +63,7 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
         output_location = joinpath(dir_path, "outputs", "clingo_output$(i).json")
         command = `clingo $(model_location) $(input_location) --outf=2`
         # print("Running command: " * string(command) * "\n")
-        print(i, ", ")
+        println(i, ", ")
         try 
             open(output_location, "w") do output_file
                 run(pipeline(command, output_file))
@@ -85,7 +98,7 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
     end
 
     combined_stats = zip_stats(all_stats)
-    best_compressions = select_compressions(subtree_selection_strategy, combined_stats, best_n)
+    best_compressions = select_compressions(subtree_selection_strategy, combined_stats, f_best)
 
     new_grammar = grammar
 
@@ -99,22 +112,5 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
 
 end
 
-
-function main(ARGS)
-    g = @cfgrammar begin
-        Number = |(1:2)
-        Number = x
-        Number = Number + Number 
-        Number = Number * Number
-    end
-    trees::Vector{RuleNode} = []
-    # Generate trees with the grammar
-    for i in 1:3
-        push!(trees, rand(RuleNode, g, 5))
-        print("Tree $i: " * string(trees[i]) * "\n")
-    end
-    print("running optimiser \n")
-    grammar_optimiser(trees, g)
-end
 
 

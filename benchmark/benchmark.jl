@@ -1,12 +1,9 @@
-import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification","HerbSearch", "HerbInterpret"])
+# import Pkg; Pkg.add(["HerbGrammar", "HerbSpecification","HerbSearch", "HerbInterpret"])
 include("../grammar_optimiser/grammar_optimiser.jl")
 include("benchmark_setup.jl")
-# include("../HerbBenchmarks.jl/src/herb_benchmarks.jl")
 include("problem_sets.jl")
 include("grammars.jl")
-include("../PBE_SLIA_Track_2019/string_functions.jl")
-include("../PBE_SLIA_Track_2019/grammars.jl")
-include("../PBE_SLIA_Track_2019/data.jl")
+
 using DataFrames; using CSV; using Base; using Shuffle; using DelimitedFiles;
 using HerbGrammar, HerbSpecification, HerbSearch, HerbInterpret
 
@@ -31,7 +28,7 @@ function benchmark(settings)
     #2. Extend the grammar
     println("=================================")
     println("STEP 2: COMPRESSING FOUND SOLUTIONS")
-    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"], settings["best_n"])
+    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"], settings["f_best"])
     println("PRINTING NEW GRAMMAR")
     println(string(g_extended))
 
@@ -100,7 +97,7 @@ function benchmark_herb(settings)
     #2. Extend the grammar
     println("=================================")
     println("STEP 2: COMPRESSING FOUND SOLUTIONS")
-    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"], settings["best_n"])
+    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"], settings["f_best"])
     println("PRINTING NEW GRAMMAR")
     println(string(g_extended))
 
@@ -190,7 +187,7 @@ function experiment_1()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.5::Float64,
+        "f_best" => 0.5::Float64,
         "subtree_selection_strategy" => 1::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
@@ -212,7 +209,7 @@ function experiment_2()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.75::Float64,
+        "f_best" => 0.75::Float64,
         "subtree_selection_strategy" => 1::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
@@ -234,7 +231,7 @@ function experiment_3()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.95::Float64,
+        "f_best" => 0.95::Float64,
         "subtree_selection_strategy" => 1::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
@@ -258,7 +255,7 @@ function experiment_4()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.5::Float64,
+        "f_best" => 0.5::Float64,
         "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
@@ -280,7 +277,7 @@ function experiment_5()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.75::Float64,
+        "f_best" => 0.75::Float64,
         "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
@@ -302,32 +299,10 @@ function experiment_6()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.95::Float64,
+        "f_best" => 0.95::Float64,
         "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
-end
-
-function herb_experiment()
-    grammars = [name for name in names(Grammars, all=true, imported=false) if startswith(String(name), "grammar")]
-    problems = [name for name in names(Problems, all=true, imported=false) if startswith(String(name), "problem")]
-
-    for (x, y) in zip(grammars, problems)
-        grammar = getfield(Grammars, x)
-        problem = getfield(Problems, y)
-
-        settings = Dict(
-        "output_type" => :Number,
-        "max_depth_iterator" => 5,
-        "grammar" => grammar,
-        # The set of problems to test efficacy against
-        "problem" => problem,
-        "best_n" => 0.85::Float64,
-        "max_depth" => 2::Int,
-        "subtree_selection_strategy" => 1::Int,) # 1 is occurences and # 2 is occurences * size
-        results = benchmark_herb(settings)
-        print(results)
-    end
 end
 
 function all_benchmarks()
@@ -453,4 +428,3 @@ function all_benchmarks()
 end
 
 all_benchmarks()
-# herb_experiment()
