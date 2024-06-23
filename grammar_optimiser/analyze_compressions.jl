@@ -158,13 +158,13 @@ end
 # println("total dict: ", total_dict)
 
 
-function select_compressions(case, c, best_n)
+function select_compressions(case, c, f_best)
     """
     Selects the best compressions according to some heuristic.
     # Arguments
     - `case::Int64`: the heuristic to use (1: occurences, 2: occurences * size)
     - `c::Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}`: a dictionary (key: compression (RuleNode), value: tuple(size, # occurences))
-    - `best_n::Float64`: a float in range [0,1], that specifies what proportion of the compressions will get selected
+    - `f_best::Float64`: a float in range [0,1], that specifies what proportion of the compressions will get selected
     # Result
     - `c::Vector{RuleNode}`: a sorted and filtered list of compression IDs
     """
@@ -198,7 +198,7 @@ function select_compressions(case, c, best_n)
     # filter out compressions with less than 2 occurences
     filter!(x -> x[2].occurences >= 2, c)
     # taking the best n percentage
-    index = ceil.(Int, length(c) * best_n)
+    index = ceil.(Int, length(c) * f_best)
     c = c[begin:index]
 
 

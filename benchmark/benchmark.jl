@@ -28,7 +28,7 @@ function benchmark(settings)
     #2. Extend the grammar
     println("=================================")
     println("STEP 2: COMPRESSING FOUND SOLUTIONS")
-    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"], settings["best_n"])
+    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"], settings["f_best"])
     println("PRINTING NEW GRAMMAR")
     println(string(g_extended))
 
@@ -97,7 +97,7 @@ function benchmark_herb(settings)
     #2. Extend the grammar
     println("=================================")
     println("STEP 2: COMPRESSING FOUND SOLUTIONS")
-    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"], settings["best_n"])
+    g_extended = grammar_optimiser(asts, original_g, settings["subtree_selection_strategy"], settings["f_best"])
     println("PRINTING NEW GRAMMAR")
     println(string(g_extended))
 
@@ -187,7 +187,7 @@ function experiment_1()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.5::Float64,
+        "f_best" => 0.5::Float64,
         "subtree_selection_strategy" => 1::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
@@ -209,7 +209,7 @@ function experiment_2()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.75::Float64,
+        "f_best" => 0.75::Float64,
         "subtree_selection_strategy" => 1::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
@@ -231,7 +231,7 @@ function experiment_3()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.95::Float64,
+        "f_best" => 0.95::Float64,
         "subtree_selection_strategy" => 1::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
@@ -255,7 +255,7 @@ function experiment_4()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.5::Float64,
+        "f_best" => 0.5::Float64,
         "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
@@ -277,7 +277,7 @@ function experiment_5()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.75::Float64,
+        "f_best" => 0.75::Float64,
         "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results
@@ -299,7 +299,7 @@ function experiment_6()
         # The set of problems to test efficacy against
         "training_set" => training_set,
         "testing_set" => testing_set,
-        "best_n" => 0.95::Float64,
+        "f_best" => 0.95::Float64,
         "subtree_selection_strategy" => 2::Int) # 1 is occurences and # 2 is occurences * size 
     results = benchmark(settings)
     return results

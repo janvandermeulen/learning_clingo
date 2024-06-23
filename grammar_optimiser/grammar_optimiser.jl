@@ -15,14 +15,14 @@ function run_command(command)
     run(`$command`)
 end
 
-function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, subtree_selection_strategy::Int, best_n::Float64)
+function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, subtree_selection_strategy::Int, f_best::Float64)
     """
     Optimises a grammar based on a set of trees.
     # Arguments
     - `trees::Vector{RuleNode}`: the trees to optimise the grammar for
     - `grammar::AbstractGrammar`: the grammar to optimise
     - `subtree_selection_strategy::Int`: the strategy to select subtrees
-    - `best_n::Float64`: the number of best compressions to select
+    - `f_best::Float64`: the number of best compressions to select
     # Result
     - `new_grammar::AbstractGrammar`: the optimised grammar
     """
@@ -98,7 +98,7 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
     end
 
     combined_stats = zip_stats(all_stats)
-    best_compressions = select_compressions(subtree_selection_strategy, combined_stats, best_n)
+    best_compressions = select_compressions(subtree_selection_strategy, combined_stats, f_best)
 
     new_grammar = grammar
 
