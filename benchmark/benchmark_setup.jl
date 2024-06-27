@@ -1,5 +1,3 @@
-# import Pkg;  
-# Pkg.add("DataFrames"); Pkg.add("CSV"); Pkg.add("HerbGrammar")
 using DataFrames; using CSV; using HerbGrammar;
 
 function create_input(csv_path::String, debug::Bool=false) :: Vector{RuleNode}
@@ -160,34 +158,3 @@ function parse_integer(ast::String, start_index::Int, debug::Bool):: Tuple{Int, 
     end
     return (parse(Int, number), i - 1)
 end
-
-#=
-## A test on all inputs from the csv file
-g = @cfgrammar begin
-    Number = |(1:2)
-    Number = x
-    Number = Number + Number 
-    Number = Number * Number
-end
-trees = create_input(joinpath(dirname(@__FILE__), "inputs", "ast.csv"), true)
-for tree in trees
-    println("Tree is: " * string(tree))
-    println("Children of the tree are: "* string(tree.children))
-    println(rulenode2expr(tree, g))
-end
-=#
-
-# A small test on the largest ast from the csv file
-#=
-g = @cfgrammar begin
-    Number = |(1:2)
-    Number = x
-    Number = Number + Number 
-    Number = Number * Number
-end
-tree = string_2_rulenode("5{5{5{2,2}4{1,4{2,2}}}3}", false)
-println("Children of the tree are: "* string(tree.children))
-println("Tree is: " * string(tree))
-println(rulenode2expr(tree, g))
-=#
-

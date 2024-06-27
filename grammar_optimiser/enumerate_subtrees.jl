@@ -13,7 +13,7 @@ function enumerate_subtrees(tree::RuleNode, g::AbstractGrammar)
         return ([tree], [])
     end   
     child_subtrees = []
-    subtrees_tree_root = []# subtrees with papa node
+    subtrees_tree_root = [] # subtrees with papa node
     other_subtrees = [] # subtrees without papa node
 
     for (i, child) in pairs(tree.children)

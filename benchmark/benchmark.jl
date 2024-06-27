@@ -58,8 +58,6 @@ function benchmark(settings)
     iter_ext = []
     start_time = time()
 
-    # iterator = BFSIterator(g_extended, settings["output_type"], max_depth=settings["max_depth_iterator"])
-    # solution_extended, _ = synth(problem, iterator)
     for problem in settings["testing_set"]
         iterator = BFSIterator(g_extended, settings["output_type"], max_depth=settings["max_depth_iterator"])
         solution_extended, _, iter_ext_i = synth(problem, iterator, max_enumerations = 75000)
@@ -137,8 +135,6 @@ function benchmark_herb(settings)
         "iter_original" => iter_og,
         "iter_ext" => iter_ext,
         "grammar_extended" => g_extended,
-        # "AST_size_original" => length(solution_original),
-        # "AST_size_extended" => length(solution_extended)
     )
 end
 
@@ -159,7 +155,7 @@ function generate_eval_set(n_trees::Int, g, size::Int)::Vector{RuleNode}
 end
 
 function split_problem_set(input::Vector, split::Float64 = 0.75)
-    input = shuffle(input)[begin:100]
+    input = shuffle(input)[begin:10]
 
     halfway_point = trunc(Int64, length(input)*split)
     training_set = input[begin:halfway_point]
@@ -174,7 +170,6 @@ function experiment_1()
     g = dual_arith_bool_grammar
 
     # Generate evaluation set
-    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
     training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
 
 
@@ -242,7 +237,6 @@ function experiment_4()
     g = dual_arith_bool_grammar
 
     # Generate evaluation set
-    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
     training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
 
 
@@ -266,7 +260,6 @@ function experiment_5()
     g = dual_arith_bool_grammar
     
     # Generate evaluation set
-    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
     training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
 
     # Settings
@@ -307,7 +300,7 @@ end
 
 function all_benchmarks()
 
-    runs = 10
+    runs = 1
 
     improvements1 = []
     results1 = []
@@ -315,9 +308,7 @@ function all_benchmarks()
     for i in 1:runs
         println("experiment ", 1 ," iteration ", i)
         push!(results1, experiment_1())
-        # println(typeof(results1))
         push!(improvements1, results1[end]["iter_original"] - results1[end]["iter_ext"])
-        # print(string(results1))
     end
     end_time = time()
     println(results_to_csv(1, results1))
@@ -335,7 +326,6 @@ function all_benchmarks()
 
         push!(results2, experiment_2())
         push!(improvements2, results2[end]["iter_original"] - results2[end]["iter_ext"])
-        # print(string(result))
     end
     end_time = time()
     print(results_to_csv(2, results2))
@@ -370,9 +360,7 @@ function all_benchmarks()
     for i in 1:runs
         println("experiment ", 4 ," iteration ", i)
         push!(results4, experiment_4())
-        # println(typeof(results1))
         push!(improvements4, results4[end]["iter_original"] - results4[end]["iter_ext"])
-        # print(string(results1))
     end
     end_time = time()
     println(results_to_csv(4, results4))
@@ -390,7 +378,6 @@ function all_benchmarks()
 
         push!(results5, experiment_5())
         push!(improvements5, results5[end]["iter_original"] - results5[end]["iter_ext"])
-        # print(string(result))
     end
     end_time = time()
     print(results_to_csv(5, results5))
@@ -408,7 +395,6 @@ function all_benchmarks()
 
         push!(results6, experiment_6())
         push!(improvements6, results6[end]["iter_original"] - results6[end]["iter_ext"])
-        # print(string(result))
     end
     end_time = time()
     print(results_to_csv(6, results6))
