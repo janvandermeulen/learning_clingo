@@ -1,3 +1,9 @@
+using HerbGrammar;
+
+Base.isequal(k1::RuleNode, k2::RuleNode) = compare(k1, k2)
+
+
+#TODO: With generate_stats, immediately put in the rulenode as key, then we don't have to convert it later on
 function generate_stats(d, compressed_AST)
     """
     Compression Analysis. Analyzes 1 AST to see how many times each compression was used.
@@ -8,32 +14,27 @@ function generate_stats(d, compressed_AST)
     - `c_info::Dict{Int64, NamedTuple{(:size, :occurences), <:Tuple{Int64,Int64}}}`: an dict(key: compression_id, value: Tuple(size, # occurences))) 
     """
 
-    # (key: subtree ID, value: NamedTuple(# nodes, # occurences))
     c_info = Dict{Int64, NamedTuple{(:size, :occurences), <:Tuple{Int64,Int64}}}()
 
 
     for assign in compressed_AST
 
-        # parse the compression node id
-        node_id = nothing
-
+        # parse the node id
         m = match(r"\((\d+),", assign)
 
         @assert m !== nothing
         @assert length(m.captures) == 1
         node_id = parse(Int64, m.captures[1])
 
-        # find all the compressions of that node
+        # get the compression id
         C = d[node_id].comp_id
 
-        # increment the counter if the compression C has been used already
-        if haskey(c_info, C)
-            c_info[C] = (size = c_info[C].size, occurences = c_info[C].occurences + 1)
-
-        # initialize the counter for the first usage of the compression
-        else
-            c_info[C] = (size = getCompressionSize(d, C), occurences = 1)
+        # initialize the counter for the first occurence of the compression
+        if !haskey(c_info, C)
+            c_info[C] = (size = sum(v.comp_id == C for v in values(d)), occurences = 0)
         end
+        
+        c_info[C] = (size = c_info[C].size, occurences = c_info[C].occurences + 1)        
     end
 
     for (C, v) in c_info
@@ -48,6 +49,7 @@ end
 function compare(rn₁, rn₂)::Bool
     """
     Compares two RuleNodes. Returns true if they are equal, false otherwise.
+    This is an adaptation of the original Herb compare method, such that it can handle holes.
     # Arguments
     - `rn₁::RuleNode`: a RuleNode
     - `rn₂::RuleNode`: a RuleNode
@@ -69,28 +71,7 @@ function compare(rn₁, rn₂)::Bool
     return false
 end
 
-function getCompressionSize(d, C)
-    """
-    Returns the size of a compression C.
-    # Arguments
-    - `d::Dict`: the global dictionary (key: node_id, value: namedTuple(compressiond_id, parent_id, child_nr, type, [children]))
-    - `C::Int64`: the compression ID
-    """
-    s = Set()
-    for (k,v) in d
-        if v.comp_id == C
-            push!(s, k)
-        end
-    end
-    return length(s)
-end
-
-
-###################### COMBINE COMPRESSION STATISTICS #############################
-
-Base.isequal(k1::RuleNode, k2::RuleNode) = compare(k1, k2)
-
-function zip_stats(stats::Vector{Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}})
+function zip_stats(stats::Vector{Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}}) #put this int64 back to rulenode!
     """
     Combines the statistics of multiple ASTs into one dictionary.
     # Arguments
@@ -98,16 +79,10 @@ function zip_stats(stats::Vector{Dict{RuleNode, NamedTuple{(:size,:occurences), 
     # Result
     - `d::Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}`: a dictionary (key: RuleNode, value: NamedTuple(size, occurences))
     """
-    d = Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}()
-    for s in stats
-        for (k,v) in s
-            if !haskey(d, k)
-                d[k] = (size = v.size, occurences = 0)
-            end
-            @assert d[k].size == v.size
-            d[k] = (size = d[k].size, occurences = d[k].occurences + v.occurences)
-        end
-    end
+    d = mergewith((v1, v2) -> begin
+        @assert v1.size == v2.size "Adding tree statistics of trees with different sizes is not allowed"
+        (size = v1.size, occurences = v1.occurences + v2.occurences)
+    end, stats...)
     
     return d
 
@@ -124,23 +99,23 @@ function select_compressions(case, c, f_best)
     - `c::Vector{RuleNode}`: a sorted and filtered list of compression IDs
     """
 
-    # sorting the dictionary
-    # case 1: occurences
+    # Heuristic 1: sort by #occurences
     if case == 1
         println("sorting by #occurences...")
-        c = sort(collect(c), by=x->x[2].occurences, rev=true) # decreasing order of value
-    # case 2: occurences * size
+        c = sort(collect(c), by=x->x[2].occurences, rev=true)
+    # Heuristic 2: sort by #occurences * size
     elseif  case ==2
         println("sorting by #occurences * tree_size...")
-        c = sort(collect(c), by=x->(x[2].occurences * x[2].size), rev=true) # decreasing order of value
+        c = sort(collect(c), by=x->(x[2].occurences * x[2].size), rev=true)
     end
 
-    # filter out compressions of size 1
+    # Extra heuristic: filter out compressions of size 1
     filter!(x -> x[2].size != 1, c)
     
-    # filter out compressions with less than 2 occurences
+    # Extra heuristic: filter out compressions with fewer than 2 occurences
     filter!(x -> x[2].occurences >= 2, c)
-    # taking the best n percentage
+
+    # taking the best n percentage of compressions
     index = ceil.(Int, length(c) * f_best)
     c = c[begin:index]
 
