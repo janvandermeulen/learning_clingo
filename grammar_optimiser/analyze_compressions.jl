@@ -2,18 +2,6 @@
 
 Base.isequal(k1::RuleNode, k2::RuleNode) = compare(k1, k2)
 
-
-#TODO: With generate_stats, immediately put in the rulenode as key, then we don't have to convert it later on.
-# Also, we cannot put it earlier as RuleNode in the globaldict, as there it's per node, not per tree
-# But do we then even need the global dictionary? Can we factor it out?
-# IF we create the rulenodes immediately from the parser, we wouldn't need the global dictionary.
-# But we can't do that because we don't have complete compressions yet. Yes we do actually?
-# But how will we match assign-statements with a dictionary where the keys are RuleNodes, instead of node id's
-# redesign the dictionary: key => RuleNode, value => list of node ID's (first one is root/id), size (implicit), occurences
-# And then how do we do the generate_tree_from_compression thing without the global dict? We can already make the dict when enumerating subtrees?
-# we can almost, we have the size, occurences (=0), but not a list of node ids, especially since the nodes dont have any id yet
-# so we'd still have to do that in the parser where ids are assigned
-
 function generate_stats(d, compressed_AST)
     """
     Compression Analysis. Analyzes 1 AST to see how many times each compression was used.
