@@ -36,8 +36,18 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
         subtrees = filter(subtree -> selection_criteria(tree, subtree), subtrees) #remove subtrees size 1 and treesize
         subtree_set = vcat(subtree_set, subtrees)
     end
-    print("Time for stage 1: " * string(time() - start_time) * "\n"); start_time = time()
+
+    #TODO: why do we have one subtree set for everything?
     subtree_set = unique(subtree_set)
+
+    print("Time for stage 1: " * string(time() - start_time) * "\n"); start_time = time()
+    
+    #TODO: get the RuleNode dict from this subtree set
+    # Base.length: Return the number of nodes in the tree rooted at root. Holes don't count.
+    # occurences = 0
+    # BUT, I don't have id's yet here...
+
+
     print("Stage 2: parse subtrees to json\n")
     # 2. Parse subtrees to json
 

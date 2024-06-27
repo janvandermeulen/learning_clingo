@@ -14,38 +14,12 @@ function generate_tree_from_compression(parent, d, compression_id, grammar)
     parent_type = d[parent].type
     actual_children = grammar.childtypes[parent_type]
     
-    children::Vector{AbstractRuleNode} = []
-    current_child = 1
+    children::Vector{AbstractRuleNode} = map(x -> Hole(get_domain(grammar, grammar.bytype[x])), actual_children)
 
     for child in d[parent].children
         child_tree = generate_tree_from_compression(child, d, compression_id, grammar)
-        child_nr = d[child].child_nr
-        while current_child < child_nr + 1
-            hole = Hole(get_domain(grammar, grammar.bytype[actual_children[current_child]]))
-            push!(children, hole)
-            current_child = current_child + 1
-        end
-
-        push!(children, child_tree)
-        current_child = current_child + 1
-    end
-
-    # add remaining children; children that could be missing
-    if current_child > 1
-        current_child = current_child - 1
-        while current_child < length(actual_children)
-            hole = Hole(get_domain(grammar, grammar.bytype[actual_children[current_child]]))
-            push!(children, hole)
-            current_child = current_child + 1
-        end
-    end 
-
-    # if there are only holes, make a vector of holes
-    if length(d[parent].children) == 0 && length(actual_children) > 0
-        for i in (1,length(actual_children))
-            hole = Hole(get_domain(grammar, grammar.bytype[actual_children[i]]))
-            push!(children, hole)
-        end
+        child_nr = d[child].child_nr + 1
+        children[child_nr] = child_tree
     end
 
     tree = RuleNode(parent_type, children)
