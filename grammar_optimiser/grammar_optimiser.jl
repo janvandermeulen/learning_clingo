@@ -1,6 +1,5 @@
 using HerbCore; using Base; using CSV;
 include("enumerate_subtrees.jl")
-include("parse_subtrees_to_json.jl")
 include("parse_input.jl")
 include("parse_output.jl")
 include("analyze_compressions.jl")
@@ -61,8 +60,8 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
     end
     print("Time for stage 3 : " * string(time() - start_time) * "\n"); start_time = time()
 
-    # 4. Parse clingo output to json
-    print("Stage 4: Parse clingo output to json\n")
+    # 4. Parse clingo output json's to best results
+    print("Stage 4: Parse json to best assign-values\n")
     best_values = []
     for i in 1:length(trees)
         input_location = joinpath(dir_path, "outputs", "clingo_output$(i).json")

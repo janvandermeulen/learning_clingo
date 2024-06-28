@@ -65,9 +65,13 @@ function zip_stats(stats::Vector{Dict{RuleNode, NamedTuple{(:nodes,:size,:occure
     """
     Combines the statistics of multiple ASTs into one dictionary.
     # Arguments
-    - `stats::Vector{Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}}`: a list of dictionaries (key: RuleNode, value: NamedTuple(size, occurences))
+    - `stats::Vector{Dict{RuleNode, NamedTuple{(:nodes:size,:occurences), <:Tuple{Vector{Int64},Int64,Int64}}}}`: a list of dictionaries (key: RuleNode, value: NamedTuple(size, occurences))
     # Result
-    - `d::Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}`: a dictionary (key: RuleNode, value: NamedTuple(size, occurences))
+    - `d::Dict{RuleNode, NamedTuple{(:nodes,:size,:occurences), <:Tuple{Vector{Int64},Int64,Int64}}}`: a dictionary (key: RuleNode, value: NamedTuple(size, occurences))
+    # !! Note !! 
+    - The content of the nodes field is not correct anymore after this merge;
+    The contents of nodes of two merging keys might not be the same, as the node_id's are not consistent over different AST compressions.
+    However, the structure/grammar rules are correct, and the specific node_id's do not matter anymore after this point.
     """
     d = mergewith!((v1, v2) -> begin
         @assert v1.size == v2.size "Adding tree statistics of trees with different sizes is not allowed"
@@ -82,10 +86,10 @@ function select_compressions(case, c, f_best)
     Selects the best compressions according to some heuristic.
     # Arguments
     - `case::Int64`: the heuristic to use (1: occurences, 2: occurences * size)
-    - `c::Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}`: a dictionary (key: compression (RuleNode), value: tuple(size, # occurences))
+    - `c::Dict{RuleNode, NamedTuple{(:nodes:size,:occurences), <:Tuple{Vector{Int64},Int64,Int64}}}`: a dictionary (key: compression (RuleNode), value: tuple(size, # occurences))
     - `f_best::Float64`: a float in range [0,1], that specifies what proportion of the compressions will get selected
     # Result
-    - `c::Vector{RuleNode}`: a sorted and filtered list of compression IDs
+    - `c::Vector{RuleNode}`: a sorted and filtered list of compressions
     """
 
     # Heuristic 1: sort by #occurences
