@@ -1,19 +1,15 @@
-# using HerbGrammar;
 
 Base.isequal(k1::RuleNode, k2::RuleNode) = compare(k1, k2)
 
-function generate_stats(d, compressed_AST)
+function count_occurences(d, compressed_AST)
     """
     Compression Analysis. Analyzes 1 AST to see how many times each compression was used.
     # Arguments
-    - `d::Dict`: the global dictionary (key: node_id, value: namedTuple(compressiond_id, parent_id, child_nr, type, [children]))
+    - `d::Dict`: the global dictionary (key: RuleNode, value: namedTuple(nodes, size, occurences))
     - `compressed_AST::Vector{String}`: a list of assign-statements ["assign(A, X)", assign(B, Y), ...]
     # Result 
-    - `c_info::Dict{Int64, NamedTuple{(:size, :occurences), <:Tuple{Int64,Int64}}}`: an dict(key: compression_id, value: Tuple(size, # occurences))) 
+    - `c_info::Dict{RuleNode, NamedTuple{(:nodes, :size, :occurences), <:Tuple{Vector, Int64,Int64}}}`: an dict(key: rulenode, value: Tuple(children, size, # occurences))) 
     """
-
-    c_info = Dict{Int64, NamedTuple{(:size, :occurences), <:Tuple{Int64,Int64}}}()
-
 
     for assign in compressed_AST
 
@@ -23,26 +19,22 @@ function generate_stats(d, compressed_AST)
         @assert m !== nothing
         @assert length(m.captures) == 1
         node_id = parse(Int64, m.captures[1])
-
-        # get the compression id
-        C = d[node_id].comp_id
-
-        # initialize the counter for the first occurence of the compression
-        if !haskey(c_info, C)
-            c_info[C] = (size = sum(v.comp_id == C for v in values(d)), occurences = 0)
-        end
+        Cs = [key for (key, value) in d if node_id in value.nodes]
+        @assert length(Cs) == 1
+        C = Cs[1]
         
-        c_info[C] = (size = c_info[C].size, occurences = c_info[C].occurences + 1)        
+        d[C] = (nodes = d[C].nodes, size = d[C].size, occurences = d[C].occurences + 1)        
     end
 
-    for (C, v) in c_info
+    for (C, v) in d
         # the sum of occurences of all nodes of a compression must be exactly divisible by the compression's size
         @assert (mod(v.occurences, v.size) == 0) || (v.size == 0)
-        c_info[C] = (size = v.size, occurences = trunc(Int, v.occurences / v.size))
+        d[C] = (nodes = d[C].nodes, size = v.size, occurences = trunc(Int, v.occurences / v.size))
     end
 
-    return c_info
+    return d
 end
+
 
 function compare(rn₁, rn₂)::Bool
     """
@@ -69,7 +61,7 @@ function compare(rn₁, rn₂)::Bool
     return false
 end
 
-function zip_stats(stats::Vector{Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}}) #put this int64 back to rulenode!
+function zip_stats(stats::Vector{Dict{RuleNode, NamedTuple{(:nodes,:size,:occurences), <:Tuple{Vector{Int64},Int64,Int64}}}})
     """
     Combines the statistics of multiple ASTs into one dictionary.
     # Arguments
@@ -79,11 +71,10 @@ function zip_stats(stats::Vector{Dict{RuleNode, NamedTuple{(:size,:occurences), 
     """
     d = mergewith!((v1, v2) -> begin
         @assert v1.size == v2.size "Adding tree statistics of trees with different sizes is not allowed"
-        (size = v1.size, occurences = v1.occurences + v2.occurences)
+        (nodes = v1.nodes, size = v1.size, occurences = v1.occurences + v2.occurences)
     end, stats...)
     
     return d
-
 end
 
 function select_compressions(case, c, f_best)

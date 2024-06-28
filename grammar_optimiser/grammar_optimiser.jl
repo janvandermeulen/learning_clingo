@@ -6,15 +6,6 @@ include("parse_output.jl")
 include("analyze_compressions.jl")
 include("extend_grammar.jl")
 
-# function run_command(command)
-#     """
-#     Run a command in the shell.
-#     # Arguments
-#     - `command::Cmd`: the command to run
-#     """
-#     run(`$command`)
-# end
-
 function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, subtree_selection_strategy::Int, f_best::Float64)
     """
     Optimises a grammar based on a set of trees.
@@ -44,13 +35,11 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
     # 2. Parse subtrees to clingo input
     print("Stage 2: parse subtrees to clingo input\n")
 
-    global_dicts = []
+    subtree_dicts = []
     for (id, tree) in enumerate(trees)
-        parse_subtrees_to_json(subtree_sets[id], tree, id)
-        input_location = joinpath(dir_path, "inputs", "parser_input$(id).json")
         output_location = joinpath(dir_path, "clingo_inputs", "model_input$(id).lp")
-        global_dict = parse_json(input_location, output_location)
-        push!(global_dicts, global_dict)
+        subtree_dict = trees_to_clingo(tree, subtree_sets[id], output_location)
+        push!(subtree_dicts, subtree_dict)
     end
     print("Time for stage 2 : " * string(time() - start_time) * "\n"); start_time = time()
 
@@ -84,19 +73,19 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
     # 5. Analyse clingo output
     print("Stage 5: Analyze subtrees\n") 
 
-    all_stats = Vector{Dict{RuleNode, NamedTuple{(:size,:occurences), <:Tuple{Int64,Int64}}}}()
+    all_stats = Vector{Dict{RuleNode, NamedTuple{(:nodes,:size,:occurences), <:Tuple{Vector{Int64},Int64,Int64}}}}()
 
     for i in 1:length(trees)
         node_assignments = best_values[i]
 
-        stats = generate_stats(global_dicts[i], node_assignments)
-
-        stats = generate_trees_from_compressions(global_dicts[i], stats, grammar)
+        stats = count_occurences(subtree_dicts[i], node_assignments)
 
         push!(all_stats, stats)
     end
 
+
     combined_stats = zip_stats(all_stats)
+
     best_compressions = select_compressions(subtree_selection_strategy, combined_stats, f_best)
 
     new_grammar = grammar
@@ -110,6 +99,3 @@ function grammar_optimiser(trees::Vector{RuleNode}, grammar::AbstractGrammar, su
     return new_grammar
 
 end
-
-
-

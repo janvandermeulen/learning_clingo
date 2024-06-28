@@ -70,9 +70,7 @@ function benchmark(settings)
         "time_taken_extended" => end_time - start_time,
         "iter_original" => iter_og,
         "iter_ext" => iter_ext,
-        "grammar_extended" => g_extended,
-        # "AST_size_original" => length(solution_original),
-        # "AST_size_extended" => length(solution_extended)
+        "grammar_extended" => g_extended
     )
 end
 
@@ -82,7 +80,6 @@ function benchmark_herb(settings)
     problem = settings["problem"]
     original_g = deepcopy(g)
     asts::Vector{RuleNode} = []
-    # asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
 
     #1. Synthesise the train set using the original grammar
     println("=================================")
@@ -155,7 +152,7 @@ function generate_eval_set(n_trees::Int, g, size::Int)::Vector{RuleNode}
 end
 
 function split_problem_set(input::Vector, split::Float64 = 0.75)
-    input = shuffle(input)[begin:10]
+    input = shuffle(input)[begin:100]
 
     halfway_point = trunc(Int64, length(input)*split)
     training_set = input[begin:halfway_point]
@@ -167,12 +164,10 @@ end
 
 function experiment_1()
     # Grammar
-    g = dual_arith_bool_grammar
+    g = single_arith_grammar
 
     # Generate evaluation set
-    training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
-
-
+    training_set, testing_set = split_problem_set(single_arith, 0.8)
 
     # Settings
     settings = Dict(
@@ -193,7 +188,6 @@ function experiment_2()
     g = dual_arith_bool_grammar
     
     # Generate evaluation set
-    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
     training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
 
     # Settings
@@ -215,7 +209,6 @@ function experiment_3()
     g = dual_arith_bool_grammar
     
     # Generate evaluation set
-    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
     training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
 
     # Settings
@@ -281,7 +274,6 @@ function experiment_6()
     g = dual_arith_bool_grammar
     
     # Generate evaluation set
-    # eval_asts::Vector{RuleNode} = generate_eval_set(40, g, 3)
     training_set, testing_set = split_problem_set(dual_bool_arith, 0.8)
 
     # Settings
@@ -343,7 +335,6 @@ function all_benchmarks()
 
         push!(results3, experiment_3())
         push!(improvements3, results3[end]["iter_original"] - results3[end]["iter_ext"])
-        # print(string(result))
     end
     end_time = time()
     print(results_to_csv(3, results3))
